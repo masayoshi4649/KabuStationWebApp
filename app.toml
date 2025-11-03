@@ -1,0 +1,29 @@
+[SYSTEM]
+# 保存する環境変数名
+ENV_NAME = "APIKEY_PRD"
+
+[TRADE]
+# FUTURE_CODE = "NK225" # 日経平均先物
+# FUTURE_CODE = "NK225mini" # 日経225mini先物
+# FUTURE_CODE = "TOPIX" # TOPIX先物
+FUTURE_CODE = "TOPIXmini" # ミニTOPIX先物
+# FUTURE_CODE = "GROWTH" # グロース250先物
+# FUTURE_CODE = "JPX400" # JPX日経400先物
+# FUTURE_CODE = "DOW" # NYダウ先物
+# FUTURE_CODE = "VI" # [SOR非対応]日経平均VI先物
+# FUTURE_CODE = "Core30" # [SOR非対応]TOPIX Core30先物
+# FUTURE_CODE = "REIT" # [SOR非対応]東証REIT指数先物
+# FUTURE_CODE = "NK225micro" # [SOR非対応]日経225マイクロ先物
+
+# DERIV_MONTH = "0" # 直近限月
+DERIV_MONTH = "202512" # yyyyMM
+
+ONE_TICK = 0.25 # TOPIXmini
+# ONE_TICK = 0.5 # TOPIX
+
+EXCHANGE = 2 # 日通し
+# EXCHANGE = 23	# 日中
+# EXCHANGE = 24	# 夜間
+# EXCHANGE = 32 # SOR日通し
+# EXCHANGE = 33	# SOR日中
+# EXCHANGE = 34	# SOR夜間

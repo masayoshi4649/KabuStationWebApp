@@ -1,0 +1,8 @@
+github.com/coder/websocket v1.8.14 h1:9L0p0iKiNOibykf283eHkKUHHrpG7f65OE3BhhO7v9g=
+github.com/coder/websocket v1.8.14/go.mod h1:NX3SzP+inril6yawo5CQXx8+fk145lPDC6pumgx0mVg=
+github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
+github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
+github.com/masayoshi4649/KabuStationAPI v0.0.0-20251103085836-4aa7936352ec h1:ESgUM1SxiRvhyuoH0r4jeSd1ijPDxCU157dwu/VLJCk=
+github.com/masayoshi4649/KabuStationAPI v0.0.0-20251103085836-4aa7936352ec/go.mod h1:EcI0pnytSTvu0ISe+7Vu1DKTOUzX8/UGlWXEeK6NtoI=
+github.com/pelletier/go-toml/v2 v2.2.4 h1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=
+github.com/pelletier/go-toml/v2 v2.2.4/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
