@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -59,6 +60,7 @@ func registerHTTPRoutes(rt *gin.Engine) {
 
 func handleIndexGET(c *gin.Context) {
 	c.File("./view/index.html")
+	title := fmt.Sprintf("%s (%s)", cfg.Trade.FutureCode, cfg.Trade.DerivMonth)
 }
 
 /*

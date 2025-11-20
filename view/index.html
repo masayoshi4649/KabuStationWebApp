@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Orderbook JSON Demo</title>
+    <title>Orderbook</title>
 
     <!-- Bulma CSS（CDN） -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
@@ -52,29 +52,20 @@
         </div>
     </section>
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        const orderbookData = [
-            { "Price": 3266.75, "Current": false, "SellQty": 44, "BuyQty": 0 },
-            { "Price": 3266.5, "Current": false, "SellQty": 43, "BuyQty": 0 },
-            { "Price": 3266.25, "Current": false, "SellQty": 41, "BuyQty": 0 },
-            { "Price": 3266, "Current": false, "SellQty": 30, "BuyQty": 0 },
-            { "Price": 3265.75, "Current": false, "SellQty": 29, "BuyQty": 0 },
-            { "Price": 3265.5, "Current": false, "SellQty": 28, "BuyQty": 0 },
-            { "Price": 3265.25, "Current": false, "SellQty": 28, "BuyQty": 0 },
-            { "Price": 3265, "Current": false, "SellQty": 3, "BuyQty": 0 },
-            { "Price": 3264.75, "Current": false, "SellQty": 0, "BuyQty": 0 },
-            { "Price": 3264.5, "Current": true, "SellQty": 0, "BuyQty": 4 },
-            { "Price": 3264.25, "Current": false, "SellQty": 0, "BuyQty": 4 },
-            { "Price": 3264, "Current": false, "SellQty": 0, "BuyQty": 22 },
-            { "Price": 3263.75, "Current": false, "SellQty": 0, "BuyQty": 29 },
-            { "Price": 3263.5, "Current": false, "SellQty": 0, "BuyQty": 28 },
-            { "Price": 3263.25, "Current": false, "SellQty": 0, "BuyQty": 37 },
-            { "Price": 3263, "Current": false, "SellQty": 0, "BuyQty": 38 },
-            { "Price": 3262.75, "Current": false, "SellQty": 0, "BuyQty": 38 },
-            { "Price": 3262.5, "Current": false, "SellQty": 0, "BuyQty": 27 },
-            { "Price": 3262.25, "Current": false, "SellQty": 0, "BuyQty": 24 }
-        ];
+        const ORDERBOOK_ENDPOINT = "/book";
 
+        /*
+        ### 機能
+        - `/book` から取得した板データをHTMLテーブルへ描画する。
+
+        ### 引数およびその型
+        - `data` Array<Object> - 取得した板データ配列。
+
+        ### 返り値およびその型
+        - なし
+        */
         function renderOrderBook(data) {
             const tbody = document.getElementById("orderbook-body");
             tbody.innerHTML = "";
@@ -126,6 +117,17 @@
             });
         }
 
+        // --------------------
+        /*
+        ### 機能
+        - テーブル行クリック時に価格をコンソールへ出力する。
+
+        ### 引数およびその型
+        - なし
+
+        ### 返り値およびその型
+        - なし
+        */
         function setupRowClick() {
             const tbody = document.getElementById("orderbook-body");
             tbody.addEventListener("click", (event) => {
@@ -135,8 +137,44 @@
             });
         }
 
-        renderOrderBook(orderbookData);
+        // --------------------
+        /*
+        ### 機能
+        - 板データをAPIから取得し、描画する。
+
+        ### 引数およびその型
+        - なし
+
+        ### 返り値およびその型
+        - Promise<void>
+        */
+        async function fetchOrderBook() {
+            try {
+                const response = await axios.get(ORDERBOOK_ENDPOINT);
+                renderOrderBook(Array.isArray(response.data) ? response.data : []);
+            } catch (error) {
+                console.error("取得に失敗しました", error);
+            }
+        }
+
+        // --------------------
+        /*
+        ### 機能
+        - 初期描画を行い、1秒間隔で板データ取得・更新を続ける。
+
+        ### 引数およびその型
+        - なし
+
+        ### 返り値およびその型
+        - なし
+        */
+        function startOrderBookPolling() {
+            fetchOrderBook();
+            setInterval(fetchOrderBook, 1000);
+        }
+
         setupRowClick();
+        startOrderBookPolling();
     </script>
 </body>
 
