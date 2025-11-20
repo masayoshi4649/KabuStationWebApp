@@ -10,15 +10,14 @@ import (
 
 /*
 ### 機能
-Ginルーターを初期化してHTTPサーバーを起動する。
+- Ginルーターを初期化しHTTPサーバーを起動する。
 
 ### 引数およびその型
 - なし
 
 ### 返り値およびその型
-- error - サーバーの起動や稼働中に失敗した場合のエラー。
+- error - サーバーの起動に失敗した場合のエラー。
 */
-
 func runHTTPServer() error {
 	gin.SetMode(gin.ReleaseMode)
 	rt := gin.New()
@@ -32,7 +31,7 @@ func runHTTPServer() error {
 
 /*
 ### 機能
-受け取ったGinエンジンにHTML/静的ファイル/板情報APIの各エンドポイントを登録する。
+- 受け取ったGinエンジンにHTML/静的ファイル/板APIの各ルートを登録する。
 
 ### 引数およびその型
 - `rt` *gin.Engine - ハンドラを登録するGinエンジン。
@@ -40,8 +39,8 @@ func runHTTPServer() error {
 ### 返り値およびその型
 - なし
 */
-
 func registerHTTPRoutes(rt *gin.Engine) {
+	rt.LoadHTMLGlob("view/*.html")
 	rt.GET("/", handleIndexGET)
 	rt.Static("/static", "./view")
 	rt.GET("/book", handleBookGET)
@@ -49,7 +48,7 @@ func registerHTTPRoutes(rt *gin.Engine) {
 
 /*
 ### 機能
-トップページとなるHTMLファイルをレスポンスとして送信する。
+- 銘柄名（限月）で生成したタイトルをテンプレートに渡し、HTMLを返却する。
 
 ### 引数およびその型
 - `c` *gin.Context - クライアントリクエストを表すGinコンテキスト。
@@ -57,15 +56,17 @@ func registerHTTPRoutes(rt *gin.Engine) {
 ### 返り値およびその型
 - なし
 */
-
 func handleIndexGET(c *gin.Context) {
-	c.File("./view/index.html")
-	title := fmt.Sprintf("%s (%s)", cfg.Trade.FutureCode, cfg.Trade.DerivMonth)
+	title := fmt.Sprintf("%s（%s）", cfg.Trade.FutureCode, cfg.Trade.DerivMonth)
+
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"title": title,
+	})
 }
 
 /*
 ### 機能
-現在保持している板情報をコピーし、JSONで返却する。
+- 現在保持している板データをコピーし、JSONとして返却する。
 
 ### 引数およびその型
 - `c` *gin.Context - クライアントリクエストを表すGinコンテキスト。
@@ -73,7 +74,6 @@ func handleIndexGET(c *gin.Context) {
 ### 返り値およびその型
 - なし
 */
-
 func handleBookGET(c *gin.Context) {
 	bookMu.RLock()
 	rows := make([]BookRow, len(orderBook))

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Orderbook</title>
+    <title>{{ .title }}</title>
 
     <!-- Bulma CSS（CDN） -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
@@ -36,7 +36,7 @@
 <body>
     <section class="section py-4">
         <div class="container">
-            <h1 class="title is-5 has-text-white">フル板（JSON直書きデモ）</h1>
+            <h1 class="title is-5 has-text-white">{{ .title }}</h1>
 
             <table class="table is-bordered is-narrow is-fullwidth orderbook-table">
                 <thead>
