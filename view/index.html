@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Orderbook JSON Demo</title>
+
+    <!-- Bulma CSS（CDN） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
+
+    <style>
+        body {
+            background: #111827;
+            /* ダーク背景 */
+            color: #e5e7eb;
+        }
+
+        .orderbook-table td,
+        .orderbook-table th {
+            padding: 0.15rem 0.3rem;
+            font-size: 0.75rem;
+        }
+
+        /* 念のため残しておくが、has-text-centered でも中央寄せする */
+        .orderbook-price {
+            text-align: center;
+        }
+
+        .orderbook-row:hover {
+            background-color: #1f2937;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="section py-4">
+        <div class="container">
+            <h1 class="title is-5 has-text-white">フル板（JSON直書きデモ）</h1>
+
+            <table class="table is-bordered is-narrow is-fullwidth orderbook-table">
+                <thead>
+                    <tr>
+                        <th class="has-text-link has-text-right">売気配</th>
+                        <th class="has-text-centered">価格</th>
+                        <th class="has-text-danger has-text-left">買気配</th>
+                    </tr>
+                </thead>
+                <tbody id="orderbook-body">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script>
+        const orderbookData = [
+            { "Price": 3266.75, "Current": false, "SellQty": 44, "BuyQty": 0 },
+            { "Price": 3266.5, "Current": false, "SellQty": 43, "BuyQty": 0 },
+            { "Price": 3266.25, "Current": false, "SellQty": 41, "BuyQty": 0 },
+            { "Price": 3266, "Current": false, "SellQty": 30, "BuyQty": 0 },
+            { "Price": 3265.75, "Current": false, "SellQty": 29, "BuyQty": 0 },
+            { "Price": 3265.5, "Current": false, "SellQty": 28, "BuyQty": 0 },
+            { "Price": 3265.25, "Current": false, "SellQty": 28, "BuyQty": 0 },
+            { "Price": 3265, "Current": false, "SellQty": 3, "BuyQty": 0 },
+            { "Price": 3264.75, "Current": false, "SellQty": 0, "BuyQty": 0 },
+            { "Price": 3264.5, "Current": true, "SellQty": 0, "BuyQty": 4 },
+            { "Price": 3264.25, "Current": false, "SellQty": 0, "BuyQty": 4 },
+            { "Price": 3264, "Current": false, "SellQty": 0, "BuyQty": 22 },
+            { "Price": 3263.75, "Current": false, "SellQty": 0, "BuyQty": 29 },
+            { "Price": 3263.5, "Current": false, "SellQty": 0, "BuyQty": 28 },
+            { "Price": 3263.25, "Current": false, "SellQty": 0, "BuyQty": 37 },
+            { "Price": 3263, "Current": false, "SellQty": 0, "BuyQty": 38 },
+            { "Price": 3262.75, "Current": false, "SellQty": 0, "BuyQty": 38 },
+            { "Price": 3262.5, "Current": false, "SellQty": 0, "BuyQty": 27 },
+            { "Price": 3262.25, "Current": false, "SellQty": 0, "BuyQty": 24 }
+        ];
+
+        function renderOrderBook(data) {
+            const tbody = document.getElementById("orderbook-body");
+            tbody.innerHTML = "";
+
+            data.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.classList.add("orderbook-row");
+                tr.dataset.price = item.Price;
+
+                // 売気配
+                const askTd = document.createElement("td");
+                askTd.classList.add(
+                    "orderbook-ask",
+                    "has-text-link",
+                    "has-text-right"
+                );
+                askTd.textContent = item.SellQty > 0 ? item.SellQty.toLocaleString() : "";
+
+                // 価格（中央寄せ）
+                const priceTd = document.createElement("td");
+                priceTd.classList.add(
+                    "orderbook-price",
+                    "has-text-centered"   // ★ 追加
+                );
+                priceTd.textContent = item.Price.toFixed(2);
+
+                if (item.Current) {
+                    priceTd.classList.add(
+                        "has-background-primary-dark",
+                        "has-text-white",
+                        "has-text-weight-bold"
+                    );
+                }
+
+                // 買気配
+                const bidTd = document.createElement("td");
+                bidTd.classList.add(
+                    "orderbook-bid",
+                    "has-text-danger",
+                    "has-text-left"
+                );
+                bidTd.textContent = item.BuyQty > 0 ? item.BuyQty.toLocaleString() : "";
+
+                tr.appendChild(askTd);
+                tr.appendChild(priceTd);
+                tr.appendChild(bidTd);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setupRowClick() {
+            const tbody = document.getElementById("orderbook-body");
+            tbody.addEventListener("click", (event) => {
+                const tr = event.target.closest("tr.orderbook-row");
+                if (!tr) return;
+                console.log("clicked price:", tr.dataset.price);
+            });
+        }
+
+        renderOrderBook(orderbookData);
+        setupRowClick();
+    </script>
+</body>
+
+</html>
