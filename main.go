@@ -54,14 +54,49 @@ func main() {
 	}()
 
 	// --------------------
-	kabusapi.SetAPIKey(os.Getenv(cfg.System.EnvName))
-	closeWs, err := kabusapi.OpenQuote(updateBook, debugVar)
-	if err != nil {
-		log.Fatalf("OpenQuoteの開始に失敗しました: %v", err)
-	}
-	defer closeWs()
+	{
+		kabusapi.SetAPIKey(os.Getenv(cfg.System.EnvName))
+		// 全銘柄削除
+		code, _, err := kabusapi.PutRegisterUnregisterAll(kabusapi.ReqPutRegisterUnregisterAll{})
+		if code != 200 || err != nil {
+			log.Println("PutRegisterUnregisterAll", code, err)
+			return
+		}
+		// 銘柄取得
+		code, res, err := kabusapi.GetInfoSymbolnameFuture(kabusapi.ReqGetInfoSymbolnameFuture{
+			FutureCode: cfg.Trade.FutureCode,
+			DerivMonth: cfg.Trade.DerivMonth,
+		})
+		if code != 200 || err != nil {
+			log.Println("GetInfoSymbolnameFuture", code, err)
+			return
+		}
+		codeSymbol := res.Symbol
+		// 銘柄登録
+		code, _, err = kabusapi.PutRegisterRegister(kabusapi.ReqPutRegisterRegister{
+			Symbols: []struct {
+				Symbol   string `json:"Symbol,omitempty"`
+				Exchange int    `json:"Exchange,omitempty"`
+			}{
+				{
+					Symbol:   codeSymbol,
+					Exchange: cfg.Trade.Exchange,
+				},
+			},
+		})
+		if code != 200 || err != nil {
+			log.Println("PutRegisterRegister", code, err)
+			return
+		}
 
-	select {}
+		closeWs, err := kabusapi.OpenQuote(updateBook)
+		if err != nil {
+			log.Fatalf("OpenQuoteの開始に失敗しました: %v", err)
+		}
+		defer closeWs()
+
+		select {}
+	}
 }
 
 /*

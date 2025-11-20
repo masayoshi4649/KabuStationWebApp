@@ -36,8 +36,10 @@ github.com/klauspost/cpuid/v2 v2.3.0 h1:S4CRMLnYUhGeDFDqkGriYKdfoFlDnMtqTiI/sFzh
 github.com/klauspost/cpuid/v2 v2.3.0/go.mod h1:hqwkgyIinND0mEev00jJYCxPNVRVXFQeu1XKlok6oO0=
 github.com/leodido/go-urn v1.4.0 h1:WT9HwE9SGECu3lg4d/dIA+jxlljEa1/ffXKmRjqdmIQ=
 github.com/leodido/go-urn v1.4.0/go.mod h1:bvxc+MVxLKB4z00jd1z+Dvzr47oO32F/QSNjSBOlFxI=
-github.com/masayoshi4649/KabuStationAPI v0.0.0-20251103085836-4aa7936352ec h1:ESgUM1SxiRvhyuoH0r4jeSd1ijPDxCU157dwu/VLJCk=
-github.com/masayoshi4649/KabuStationAPI v0.0.0-20251103085836-4aa7936352ec/go.mod h1:EcI0pnytSTvu0ISe+7Vu1DKTOUzX8/UGlWXEeK6NtoI=
+github.com/masayoshi4649/KabuStationAPI v0.0.0-20251120131237-9d4165e78cf0 h1:j5tLrkw01nZENhWiCmxQuho75VYjJdwFbvbgrnsUm9I=
+github.com/masayoshi4649/KabuStationAPI v0.0.0-20251120131237-9d4165e78cf0/go.mod h1:EcI0pnytSTvu0ISe+7Vu1DKTOUzX8/UGlWXEeK6NtoI=
+github.com/masayoshi4649/KabuStationAPI v0.0.0-20251120154727-f368c5a9d42e h1:+Q6H13S9dVwRs+jqJmiwpRjtM5TIz6rX0wglRz+FlCM=
+github.com/masayoshi4649/KabuStationAPI v0.0.0-20251120154727-f368c5a9d42e/go.mod h1:EcI0pnytSTvu0ISe+7Vu1DKTOUzX8/UGlWXEeK6NtoI=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 h1:ZqeYNhU3OHLH3mGKHDcjJRFFRrJa6eAM5H+CtDdOsPc=
