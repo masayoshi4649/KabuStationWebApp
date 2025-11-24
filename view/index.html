@@ -13,43 +13,39 @@
     <section class="section py-4">
         <div class="container">
             <h1 class="title is-5 has-text-white">{{ .title }}</h1>
-
-            <table class="table is-bordered is-narrow is-fullwidth orderbook-table">
-                <thead>
-                    <tr>
-                        <th class="has-text-link has-text-right">売気配</th>
-                        <th class="has-text-centered">価格</th>
-                        <th class="has-text-danger has-text-left">買気配</th>
-                    </tr>
-                </thead>
-                <tbody id="orderbook-body">
-                </tbody>
-            </table>
         </div>
 
-        <div class="container">
-
-        </div>
-        <div class="container">
-
-        </div>
-        <div class="container">
-            <!-- <button class="button">SEND</button> -->
-        </div>
-
-        <div class="container" id="cancel">
-            <b>注文取消</b>
-            <div class="cancel__checkboxes">
-                <label class="checkbox button">
-                    <input type="checkbox" id="cancel__long" />
-                    買建(ロング)
-                </label>
-                <label class="checkbox button">
-                    <input type="checkbox" id="cancel__short" />
-                    売建(ショート)
-                </label>
+        <div class="container main-layout">
+            <div class="main-layout__left">
+                <table class="table is-bordered is-narrow is-fullwidth orderbook-table">
+                    <thead>
+                        <tr>
+                            <th class="has-text-link has-text-right">売気配</th>
+                            <th class="has-text-centered">価格</th>
+                            <th class="has-text-danger has-text-left">買気配</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderbook-body">
+                    </tbody>
+                </table>
             </div>
-            <button class="button" id="cancel__btn">SEND</button>
+
+            <div class="main-layout__right">
+                <div class="cancel-panel" id="cancel">
+                    <b>注文取消</b>
+                    <div class="cancel__checkboxes">
+                        <label class="checkbox button">
+                            <input type="checkbox" id="cancel__long" />
+                            買建(ロング)
+                        </label>
+                        <label class="checkbox button">
+                            <input type="checkbox" id="cancel__short" />
+                            売建(ショート)
+                        </label>
+                    </div>
+                    <button class="button" id="cancel__btn">SEND</button>
+                </div>
+            </div>
         </div>
 
     </section>

@@ -61,7 +61,7 @@ function renderOrderBook(data) {
     });
 }
 
-// --------------------
+// ----------------------------------------
 /*
 ### 機能
 - テーブル行クリック時に価格をコンソールへ出力する。
@@ -81,7 +81,7 @@ function setupRowClick() {
     });
 }
 
-// --------------------
+// ----------------------------------------
 /*
 ### 機能
 - 板データをAPIから取得し、描画する。
@@ -101,7 +101,7 @@ async function fetchOrderBook() {
     }
 }
 
-// --------------------
+// ----------------------------------------
 /*
 ### 機能
 - 初期描画を行い、1秒間隔で板データ取得・更新を続ける。
@@ -117,7 +117,49 @@ function startOrderBookPolling() {
     setInterval(fetchOrderBook, 1000);
 }
 
+// ----------------------------------------
+/*
+### 機能
+- キャンセルエリアのチェック状態に応じて背景色を切り替える。
+
+### 引数およびその型
+- なし
+
+### 返り値およびその型
+- なし
+*/
+function setupCancelState() {
+    const cancelContainer = document.getElementById("cancel");
+    const cancelLong = document.getElementById("cancel__long");
+    const cancelShort = document.getElementById("cancel__short");
+
+    if (!cancelContainer || !cancelLong || !cancelShort) {
+        return;
+    }
+
+    const updateBackground = () => {
+        const isLongChecked = cancelLong.checked;
+        const isShortChecked = cancelShort.checked;
+
+        let backgroundColor = "";
+        if (isLongChecked && isShortChecked) {
+            backgroundColor = "#A15FC2";
+        } else if (isLongChecked) {
+            backgroundColor = "#FF6685";
+        } else if (isShortChecked) {
+            backgroundColor = "#4258FF";
+        }
+
+        cancelContainer.style.backgroundColor = backgroundColor;
+    };
+
+    cancelLong.addEventListener("change", updateBackground);
+    cancelShort.addEventListener("change", updateBackground);
+    updateBackground();
+}
+
 setupRowClick();
 startOrderBookPolling();
+setupCancelState();
 
 

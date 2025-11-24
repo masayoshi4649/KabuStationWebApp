@@ -15,19 +15,45 @@
      text-align: center;
  }
 
- .orderbook-row:hover {
-     background-color: #1f2937;
-     cursor: pointer;
- }
+.orderbook-row:hover {
+    background-color: #1f2937;
+    cursor: pointer;
+}
 
- #cancel {
-     display: flex;
-     flex-direction: column;
-     align-items: flex-start;
-     gap: 0.5rem;
- }
+.main-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
 
- .cancel__checkboxes {
-     display: flex;
-     gap: 0.5rem;
- }
+.main-layout__left {
+    flex: 1 1 60%;
+}
+
+.main-layout__right {
+    flex: 0 0 320px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#cancel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1.25rem;
+    border: 3px solid #94a3b8;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.2s ease;
+}
+
+.cancel__checkboxes {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
