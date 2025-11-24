@@ -1,0 +1,33 @@
+ body {
+     background: #111827;
+     /* ダーク背景 */
+     color: #e5e7eb;
+ }
+
+ .orderbook-table td,
+ .orderbook-table th {
+     padding: 0.15rem 0.3rem;
+     font-size: 0.75rem;
+ }
+
+ /* 念のため残しておくが、has-text-centered でも中央寄せする */
+ .orderbook-price {
+     text-align: center;
+ }
+
+ .orderbook-row:hover {
+     background-color: #1f2937;
+     cursor: pointer;
+ }
+
+ #cancel {
+     display: flex;
+     flex-direction: column;
+     align-items: flex-start;
+     gap: 0.5rem;
+ }
+
+ .cancel__checkboxes {
+     display: flex;
+     gap: 0.5rem;
+ }

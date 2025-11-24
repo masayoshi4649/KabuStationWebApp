@@ -5,32 +5,8 @@
     <meta charset="UTF-8" />
     <title>{{ .title }}</title>
 
-    <!-- Bulma CSS（CDN） -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
-
-    <style>
-        body {
-            background: #111827;
-            /* ダーク背景 */
-            color: #e5e7eb;
-        }
-
-        .orderbook-table td,
-        .orderbook-table th {
-            padding: 0.15rem 0.3rem;
-            font-size: 0.75rem;
-        }
-
-        /* 念のため残しておくが、has-text-centered でも中央寄せする */
-        .orderbook-price {
-            text-align: center;
-        }
-
-        .orderbook-row:hover {
-            background-color: #1f2937;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
+    <link rel="stylesheet" href="/static/index.css">
 </head>
 
 <body>
@@ -50,132 +26,36 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="container">
+
+        </div>
+        <div class="container">
+
+        </div>
+        <div class="container">
+            <!-- <button class="button">SEND</button> -->
+        </div>
+
+        <div class="container" id="cancel">
+            <b>注文取消</b>
+            <div class="cancel__checkboxes">
+                <label class="checkbox button">
+                    <input type="checkbox" id="cancel__long" />
+                    買建(ロング)
+                </label>
+                <label class="checkbox button">
+                    <input type="checkbox" id="cancel__short" />
+                    売建(ショート)
+                </label>
+            </div>
+            <button class="button" id="cancel__btn">SEND</button>
+        </div>
+
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        const ORDERBOOK_ENDPOINT = "/book";
-
-        /*
-        ### 機能
-        - `/book` から取得した板データをHTMLテーブルへ描画する。
-
-        ### 引数およびその型
-        - `data` Array<Object> - 取得した板データ配列。
-
-        ### 返り値およびその型
-        - なし
-        */
-        function renderOrderBook(data) {
-            const tbody = document.getElementById("orderbook-body");
-            tbody.innerHTML = "";
-
-            data.forEach(item => {
-                const tr = document.createElement("tr");
-                tr.classList.add("orderbook-row");
-                tr.dataset.price = item.Price;
-
-                // 売気配
-                const askTd = document.createElement("td");
-                askTd.classList.add(
-                    "orderbook-ask",
-                    "has-text-link",
-                    "has-text-right"
-                );
-                askTd.textContent = item.SellQty > 0 ? item.SellQty.toLocaleString() : "";
-
-                // 価格（中央寄せ）
-                const priceTd = document.createElement("td");
-                priceTd.classList.add(
-                    "orderbook-price",
-                    "has-text-centered"   // ★ 追加
-                );
-                priceTd.textContent = item.Price.toFixed(2);
-
-                if (item.Current) {
-                    priceTd.classList.add(
-                        "has-background-primary-dark",
-                        "has-text-white",
-                        "has-text-weight-bold"
-                    );
-                }
-
-                // 買気配
-                const bidTd = document.createElement("td");
-                bidTd.classList.add(
-                    "orderbook-bid",
-                    "has-text-danger",
-                    "has-text-left"
-                );
-                bidTd.textContent = item.BuyQty > 0 ? item.BuyQty.toLocaleString() : "";
-
-                tr.appendChild(askTd);
-                tr.appendChild(priceTd);
-                tr.appendChild(bidTd);
-
-                tbody.appendChild(tr);
-            });
-        }
-
-        // --------------------
-        /*
-        ### 機能
-        - テーブル行クリック時に価格をコンソールへ出力する。
-
-        ### 引数およびその型
-        - なし
-
-        ### 返り値およびその型
-        - なし
-        */
-        function setupRowClick() {
-            const tbody = document.getElementById("orderbook-body");
-            tbody.addEventListener("click", (event) => {
-                const tr = event.target.closest("tr.orderbook-row");
-                if (!tr) return;
-                console.log("clicked price:", tr.dataset.price);
-            });
-        }
-
-        // --------------------
-        /*
-        ### 機能
-        - 板データをAPIから取得し、描画する。
-
-        ### 引数およびその型
-        - なし
-
-        ### 返り値およびその型
-        - Promise<void>
-        */
-        async function fetchOrderBook() {
-            try {
-                const response = await axios.get(ORDERBOOK_ENDPOINT);
-                renderOrderBook(Array.isArray(response.data) ? response.data : []);
-            } catch (error) {
-                console.error("取得に失敗しました", error);
-            }
-        }
-
-        // --------------------
-        /*
-        ### 機能
-        - 初期描画を行い、1秒間隔で板データ取得・更新を続ける。
-
-        ### 引数およびその型
-        - なし
-
-        ### 返り値およびその型
-        - なし
-        */
-        function startOrderBookPolling() {
-            fetchOrderBook();
-            setInterval(fetchOrderBook, 1000);
-        }
-
-        setupRowClick();
-        startOrderBookPolling();
-    </script>
+    <script src="/static/index.js"></script>
 </body>
 
 </html>
