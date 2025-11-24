@@ -141,6 +141,65 @@ function setupCancelState() {
     updateBackground();
 }
 
+// ----------------------------------------
+/**
+ * キャンセルボタン押下時の送信処理をセットアップする。
+ *
+ * 機能:
+ *   - 現在のチェック状態をペイロードに含めて /order/cancel へ送信する
+ *   - 送信後にチェックボックスをオフへ戻し背景色を更新する
+ *   - レスポンスに応じてトーストを表示する
+ *
+ * 引数およびその型: なし
+ * 返り値およびその型: {void} 返り値はありません。
+ *
+ * @function setupCancelButton
+ * @returns {void} 返り値はありません。
+ */
+function setupCancelButton() {
+    const cancelButton = document.getElementById("cancel__btn");
+    const cancelLong = document.getElementById("cancel__long");
+    const cancelShort = document.getElementById("cancel__short");
+
+    if (!cancelButton || !cancelLong || !cancelShort) {
+        return;
+    }
+
+    cancelButton.addEventListener("click", async () => {
+        const payload = {
+            long: cancelLong.checked,
+            short: cancelShort.checked
+        };
+
+        cancelLong.checked = false;
+        cancelShort.checked = false;
+        cancelLong.dispatchEvent(new Event("change"));
+        cancelShort.dispatchEvent(new Event("change"));
+
+        try {
+            const response = await axios.post("/order/cancel", payload);
+            if (response.status === 200) {
+                iziToast.success({
+                    title: '注文取消',
+                    message: '送信が完了しました',
+                });
+            } else {
+                iziToast.error({
+                    title: '注文取消',
+                    message: '送信が失敗しました',
+                });
+            }
+        } catch (error) {
+            console.error("注文取消の送信に失敗しました", error);
+            iziToast.error({
+                title: '注文取消',
+                message: '送信が失敗しました',
+            });
+        }
+    });
+}
+
 setupRowClick();
 startOrderBookPolling();
 setupCancelState();
+setupCancelButton();
