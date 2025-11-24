@@ -20,18 +20,20 @@ var cfg Config
 
 const httpListenAddr = ":8080"
 
-/*
-### 機能
-設定ファイルを読み込み、HTTPサーバーとWebSocket購読を開始してアプリケーション全体を起動する。
-
-### 引数およびその型
-- なし
-
-### 返り値およびその型
-- なし
-*/
+// main は、設定の読み込みと HTTP サーバー、板情報購読の起動を行うアプリケーションのエントリーポイントです。
+//
+// 機能:
+//   - コマンドライン引数から設定ファイルパスを受け取る
+//   - 設定の読み込みに失敗した場合はエラーメッセージを表示して終了を待機する
+//   - HTTP サーバーと WebSocket 購読を並行して起動する
+//
+// 引数と型:
+//   - なし
+//
+// 返り値と型:
+//   - なし
 func main() {
-	// 設定ファイルの読み込みと検証
+	// 設定ファイルパスの取得と初期値設定
 	var confPath string
 	flag.StringVar(&confPath, "c", "app.toml", "設定ファイルへのパスを指定するフラグ")
 	flag.StringVar(&confPath, "config", "app.toml", "設定ファイルへのパスを指定するエイリアス")
@@ -40,29 +42,31 @@ func main() {
 	conf, err := loadConfig(confPath)
 	cfg = conf
 	if err != nil {
-		log.Printf("設定ファイルの読込に失敗しました (%s): %v\n", confPath, err)
+		log.Printf("設定ファイルの読み込みに失敗しました (%s): %v\n", confPath, err)
 		log.Println("Enterキーを押すと終了します...")
-		_, _ = bufio.NewReader(os.Stdin).ReadString('\n') // エラー内容を確認するための一時停止
+		_, _ = bufio.NewReader(os.Stdin).ReadString('\n') // エラー内容を確認するために一時停止
 		os.Exit(1)
 	}
 
-	// --------------------
+	// ----------------------------------------
 	go func() {
 		if err := runHTTPServer(); err != nil {
-			log.Printf("HTTPサーバーが停止しました: %v", err)
+			log.Printf("HTTPサーバーが終了しました: %v", err)
 		}
 	}()
 
-	// --------------------
+	// ----------------------------------------
 	{
 		kabusapi.SetAPIKey(os.Getenv(cfg.System.EnvName))
-		// 全銘柄削除
+
+		// 既存登録を全解除
 		code, _, err := kabusapi.PutRegisterUnregisterAll(kabusapi.ReqPutRegisterUnregisterAll{})
 		if code != 200 || err != nil {
 			log.Println("PutRegisterUnregisterAll", code, err)
 			return
 		}
-		// 銘柄取得
+
+		// 対象銘柄を取得
 		code, res, err := kabusapi.GetInfoSymbolnameFuture(kabusapi.ReqGetInfoSymbolnameFuture{
 			FutureCode: cfg.Trade.FutureCode,
 			DerivMonth: cfg.Trade.DerivMonth,
@@ -72,7 +76,8 @@ func main() {
 			return
 		}
 		codeSymbol := res.Symbol
-		// 銘柄登録
+
+		// 板情報の登録
 		code, _, err = kabusapi.PutRegisterRegister(kabusapi.ReqPutRegisterRegister{
 			Symbols: []struct {
 				Symbol   string `json:"Symbol,omitempty"`
@@ -91,7 +96,7 @@ func main() {
 
 		closeWs, err := kabusapi.OpenQuote(updateBook)
 		if err != nil {
-			log.Fatalf("OpenQuoteの開始に失敗しました: %v", err)
+			log.Fatalf("OpenQuote の開始に失敗しました: %v", err)
 		}
 		defer closeWs()
 
@@ -99,32 +104,34 @@ func main() {
 	}
 }
 
-/*
-### 機能
-受信したQuoteと最新の板情報をログに出力し、リアルタイム処理をデバッグしやすくする。
-
-### 引数およびその型
-- `q` kabusapi.Quote - APIから受信した板情報。
-
-### 返り値およびその型
-- なし
-*/
+// debugVar は、受信した Quote と現在保持している板データをログに出力し、動作確認に用いるデバッグ用の関数です。
+//
+// 機能:
+//   - 引数で受け取った Quote 全体をログ出力する
+//   - サーバーが保持している板データのスナップショットをログ出力する
+//
+// 引数と型:
+//   - q kabusapi.Quote: API から受信した板情報
+//
+// 返り値と型:
+//   - なし
 func debugVar(q kabusapi.Quote) {
 	log.Println(q)
 	log.Println(orderBook)
 }
 
-/*
-### 機能
-受信したQuoteから売買数量をティック単位で集計し、HTTP配信用の板データに更新する。
-
-### 引数およびその型
-- `q` kabusapi.Quote - APIから受信した最新の板情報。
-
-### 返り値およびその型
-- なし
-*/
-
+// updateBook は、受信した Quote をティック単位に集約し、HTTP レスポンス用の板データを最新化します。
+//
+// 機能:
+//   - 現在値をティックに丸めて中央ティックを算出する
+//   - 売買それぞれの気配数量をティックごとに合算する
+//   - 表示範囲（現在値の前後一定幅）の行データを生成し共有メモリに格納する
+//
+// 引数と型:
+//   - q kabusapi.Quote: API から受信した板情報
+//
+// 返り値と型:
+//   - なし
 func updateBook(q kabusapi.Quote) {
 	if cfg.Trade.OneTick <= 0 {
 		return
@@ -134,8 +141,8 @@ func updateBook(q kabusapi.Quote) {
 	fromTick := func(t int64) float64 { return float64(t) * cfg.Trade.OneTick }
 	cpTick := toTick(q.CalcPrice)
 
-	// --------------------
-	// 板情報構築用の一時領域
+	// ----------------------------------------
+	// 板表示用の一時集計領域
 	sells := make(map[int64]float64, 16)
 	buys := make(map[int64]float64, 16)
 	add := func(m map[int64]float64, price, qty float64) {
@@ -145,7 +152,7 @@ func updateBook(q kabusapi.Quote) {
 		m[toTick(price)] += qty
 	}
 
-	// --------------------
+	// ----------------------------------------
 	// 売り気配の集計
 	add(sells, q.Sell1.Price, q.Sell1.Qty)
 	add(sells, q.Sell2.Price, q.Sell2.Qty)
@@ -158,7 +165,7 @@ func updateBook(q kabusapi.Quote) {
 	add(sells, q.Sell9.Price, q.Sell9.Qty)
 	add(sells, q.Sell10.Price, q.Sell10.Qty)
 
-	// --------------------
+	// ----------------------------------------
 	// 買い気配の集計
 	add(buys, q.Buy1.Price, q.Buy1.Qty)
 	add(buys, q.Buy2.Price, q.Buy2.Qty)
@@ -171,13 +178,13 @@ func updateBook(q kabusapi.Quote) {
 	add(buys, q.Buy9.Price, q.Buy9.Qty)
 	add(buys, q.Buy10.Price, q.Buy10.Qty)
 
-	// Ask/Bidを直接加算したい場合は以下を有効化する（Sell1/Buy1との二重計上に注意）
+	// Ask/Bid を同時に加算する場合は以下を利用（Sell1/Buy1 との重複に注意）
 	// add(sells, q.AskPrice, q.AskQty)
 	// add(buys, q.BidPrice, q.BidQty)
 
-	// --------------------
+	// ----------------------------------------
 	// 表示用の行データへ変換
-	const radius = 9 // 現在値を中心に前後9刻みを表示
+	const radius = 9 // 現在値を中心に前後 9 本を表示
 	rows := make([]BookRow, 0, radius*2+1)
 	for t := cpTick + radius; t >= cpTick-radius; t-- {
 		rows = append(rows, BookRow{
@@ -193,18 +200,18 @@ func updateBook(q kabusapi.Quote) {
 	bookMu.Unlock()
 }
 
-/*
-### 機能
-TOML形式の設定ファイルを読み込み、Config構造体へデシリアライズする。
-
-### 引数およびその型
-- `path` string - 読み込む設定ファイルのパス。
-
-### 返り値およびその型
-- Config - 読み込んだ設定値。
-- error - 読み込みまたは解析に失敗した場合のエラー。
-*/
-
+// loadConfig は、TOML 形式の設定ファイルを読み込み、Config 構造体へデシリアライズします。
+//
+// 機能:
+//   - 指定パスのファイルを読み取り、TOML をパースする
+//   - パース結果を Config にマッピングして返す
+//
+// 引数と型:
+//   - path string: 読み込む設定ファイルのパス
+//
+// 返り値と型:
+//   - Config: 読み込んだ設定値
+//   - error: ファイル読み込みやパースに失敗した場合のエラー
 func loadConfig(path string) (Config, error) {
 	var cfg Config
 	b, err := os.ReadFile(path)

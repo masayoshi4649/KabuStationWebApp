@@ -1,6 +1,6 @@
 package main
 
-// Config はシステム設定とトレード設定を保持するルート構造体。
+// Config は、システム設定とトレード設定をまとめて保持するルート構造体です。
 type Config struct {
 	System struct {
 		EnvName string `toml:"ENV_NAME"`
@@ -13,7 +13,7 @@ type Config struct {
 	} `toml:"TRADE"`
 }
 
-// BookRow は描画用に整形した1行分の板情報を表す。
+// BookRow は、板表示に利用する 1 行分の価格と数量を表現します。
 type BookRow struct {
 	Price   float64 `json:"Price"`
 	Current bool    `json:"Current"`
