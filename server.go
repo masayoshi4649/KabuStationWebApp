@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	kabusapi "github.com/masayoshi4649/KabuStationAPI"
 )
 
 // runHTTPServer は、Gin を利用した HTTP サーバーを起動するエントリーポイントです。
@@ -43,9 +45,13 @@ func runHTTPServer() error {
 //   - なし
 func registerHTTPRoutes(rt *gin.Engine) {
 	rt.LoadHTMLGlob("view/*.html")
-	rt.GET("/", handleIndexGET)
 	rt.Static("/static", "./view")
+
+	rt.GET("/", handleIndexGET)
 	rt.GET("/book", handleBookGET)
+
+	rt.POST("/order/cancel", handleOrderCancelPOST)
+
 }
 
 // handleIndexGET は、先物コードと限月をタイトルとしてテンプレートに渡し、インデックスページを描画します。
@@ -84,4 +90,126 @@ func handleBookGET(c *gin.Context) {
 	copy(rows, orderBook)
 	bookMu.RUnlock()
 	c.JSON(http.StatusOK, rows)
+}
+
+type ReqOrderCancelPOST struct {
+	Long  bool `json:"long"`
+	Short bool `json:"short"`
+}
+
+// handleOrderCancelPOST は、注文取消用の JSON ペイロードを受信し、現在の注文情報を取得した上で取消処理を実行します。
+//
+// 機能:
+//   - long/short の取消対象を示すペイロードを JSON で受け取り、内容をログへ記録する
+//   - KabuStationAPI から注文一覧を取得し、取消処理の前提となる情報を確認する
+//
+// 引数およびその型:
+//   - c *gin.Context: リクエストコンテキスト
+//
+// 返り値およびその型:
+//   - なし
+func handleOrderCancelPOST(c *gin.Context) {
+	var req ReqOrderCancelPOST
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Println("handleOrderCancelPOST ペイロードの解析に失敗", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "リクエストボディが不正です",
+		})
+		return
+	}
+
+	// ----------------------------------------
+	if req.Long {
+		// 注文中データ取得
+		code, res, err := kabusapi.GetInfoOrders(kabusapi.ReqGetInfoOrders{
+			Symbol:     codeSymbol,
+			Side:       "2",
+			Cashmargin: "2",
+			State:      "3",
+		})
+		if err != nil {
+			log.Println("handleOrderCancelPOST", err)
+			c.Error(err)
+			c.Abort()
+			return
+		}
+		if code != 200 {
+			log.Println("handleOrderCancelPOST", code)
+			c.Status(code)
+			c.Abort()
+			return
+		}
+
+		// 注文取消実行
+		for _, v := range res {
+			b, _ := json.MarshalIndent(v, "", "  ")
+			fmt.Println("----------------------------------------")
+			fmt.Println(string(b))
+
+			code, res, err := kabusapi.PutOrderCancelorder(kabusapi.ReqPutOrderCancelorder{OrderId: v.ID})
+			if err != nil {
+				log.Println("PutOrderCancelorder", err)
+				c.Error(err)
+				c.Abort()
+				return
+			}
+			if code != 200 {
+				log.Println("PutOrderCancelorder", code)
+				c.Status(code)
+				c.Abort()
+				return
+			}
+
+			fmt.Println("注文取消", res.Result, res.OrderId)
+		}
+	}
+
+	// ----------------------------------------
+	if req.Short {
+		// 注文中データ取得
+		code, res, err := kabusapi.GetInfoOrders(kabusapi.ReqGetInfoOrders{
+			Symbol:     codeSymbol,
+			Side:       "1",
+			Cashmargin: "2",
+			State:      "3",
+		})
+		if err != nil {
+			log.Println("handleOrderCancelPOST", err)
+			c.Error(err)
+			c.Abort()
+			return
+		}
+		if code != 200 {
+			log.Println("handleOrderCancelPOST", code)
+			c.Status(code)
+			c.Abort()
+			return
+		}
+
+		// 注文取消実行
+		for _, v := range res {
+			b, _ := json.MarshalIndent(v, "", "  ")
+			fmt.Println("----------------------------------------")
+			fmt.Println(string(b))
+
+			code, res, err := kabusapi.PutOrderCancelorder(kabusapi.ReqPutOrderCancelorder{OrderId: v.ID})
+			if err != nil {
+				log.Println("PutOrderCancelorder", err)
+				c.Error(err)
+				c.Abort()
+				return
+			}
+			if code != 200 {
+				log.Println("PutOrderCancelorder", code)
+				c.Status(code)
+				c.Abort()
+				return
+			}
+
+			fmt.Println("注文取消", res.Result, res.OrderId)
+		}
+	}
+	// ----------------------------------------
+
+	c.Status(http.StatusOK)
 }

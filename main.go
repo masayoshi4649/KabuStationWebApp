@@ -17,6 +17,7 @@ var (
 	bookMu    sync.RWMutex
 )
 var cfg Config
+var codeSymbol string
 
 const httpListenAddr = ":8080"
 
@@ -75,7 +76,7 @@ func main() {
 			log.Println("GetInfoSymbolnameFuture", code, err)
 			return
 		}
-		codeSymbol := res.Symbol
+		codeSymbol = res.Symbol
 
 		// 板情報の登録
 		code, _, err = kabusapi.PutRegisterRegister(kabusapi.ReqPutRegisterRegister{
