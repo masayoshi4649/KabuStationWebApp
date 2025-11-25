@@ -1,19 +1,13 @@
- body {
-     background: #111827;
-     /* ダーク背景 */
-     color: #e5e7eb;
- }
+.orderbook-table td,
+.orderbook-table th {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.75rem;
+}
 
- .orderbook-table td,
- .orderbook-table th {
-     padding: 0.15rem 0.3rem;
-     font-size: 0.75rem;
- }
-
- /* 念のため残しておくが、has-text-centered でも中央寄せする */
- .orderbook-price {
-     text-align: center;
- }
+/* 念のため残しておくが、has-text-centered でも中央寄せする */
+.orderbook-price {
+    text-align: center;
+}
 
 .orderbook-row:hover {
     background-color: #1f2937;
@@ -23,7 +17,7 @@
 .main-layout {
     display: flex;
     gap: 1.5rem;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     flex-wrap: wrap;
 }
@@ -35,11 +29,13 @@
 .main-layout__right {
     flex: 0 0 320px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
 }
 
-#cancel {
+#cancel,
+#close {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -49,11 +45,19 @@
     border: 3px solid #94a3b8;
     border-radius: 1rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-    transition: background-color 0.2s ease;
+    transition: background 0.2s ease;
 }
 
-.cancel__checkboxes {
+.cancel__checkboxes,
+.close__checkboxes {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+    width: 100%;
+}
+
+.cancel__checkboxes label,
+.close__checkboxes label {
+    justify-content: flex-start;
+    text-align: left;
 }

@@ -31,26 +31,54 @@
                 </table>
             </div>
 
+            <!-- 注文取消 -->
             <div class="main-layout__right">
                 <div class="cancel-panel" id="cancel">
-                    <b>注文取消</b>
+                    <h4 class="subtitle is-4 has-text-warning">注文取消</h4>
                     <div class="cancel__checkboxes">
-                        <label class="checkbox button">
+                        <label class="checkbox button is-fullwidth is-medium is-responsive">
                             <input type="checkbox" id="cancel__long" />
                             買建(ロング)
                         </label>
-                        <label class="checkbox button">
+                        <label class="checkbox button is-fullwidth is-medium is-responsive">
                             <input type="checkbox" id="cancel__short" />
                             売建(ショート)
                         </label>
                     </div>
-                    <button class="button" id="cancel__btn">SEND</button>
+                    <button class="button is-primary is-rounded is-fullwidth" id="cancel__btn">SEND</button>
+                </div>
+
+
+                <!-- 建玉返済 -->
+                <div class="close-panel" id="close">
+                    <h4 class="subtitle is-4 has-text-warning">建玉返済</h4>
+                    <label class="checkbox button is-fullwidth is-medium is-responsive">
+                        <input type="checkbox" id="close__only_profit" checked />
+                        利確可建玉のみ
+                    </label>
+
+                    <div class="close__checkboxes">
+                        <label class="checkbox button is-fullwidth is-medium is-responsive">
+                            <input type="checkbox" id="close__long" />
+                            買建(ロング)
+                        </label>
+                        <label class="checkbox button is-fullwidth is-medium is-responsive">
+                            <input type="checkbox" id="close__short" />
+                            売建(ショート)
+                        </label>
+                    </div>
+                    <button class="button is-primary is-rounded is-fullwidth" id="close__btn">SEND</button>
                 </div>
             </div>
+
+
+
+
         </div>
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <script src="/static/lib/iziToast/iziToast.js"></script>
     <script src="/static/index.js"></script>
 

@@ -1,5 +1,107 @@
 const ORDERBOOK_ENDPOINT = "/book";
 
+// ----------------------------------------
+/**
+ * チェック状態に応じてキャンセル/決済エリアで使う基調色を決定する。
+ *
+ * 機能:
+ *   - ロングとショートの選択組み合わせに応じて 3 パターンの色を返す
+ *   - 未選択時は空文字を返し背景を初期化しやすくする
+ *
+ * @function determineSelectionColor
+ * @param {boolean} isLongChecked - ロングが選択されているかどうか。
+ * @param {boolean} isShortChecked - ショートが選択されているかどうか。
+ * @returns {string} 選択状態に応じた 16 進カラーコード。未選択の場合は空文字を返します。
+ */
+function determineSelectionColor(isLongChecked, isShortChecked) {
+    if (isLongChecked && isShortChecked) {
+        return "#A15FC2";
+    }
+    if (isLongChecked) {
+        return "#FF6685";
+    }
+    if (isShortChecked) {
+        return "#4258FF";
+    }
+    return "";
+}
+
+// ----------------------------------------
+/**
+ * 指定した要素に粗めの斜めチェッカーボード背景を適用する。
+ *
+ * 機能:
+ *   - 基調色を背景色として設定し、半透明の白でパターンを重ねる
+ *   - 粗めのマス目 (約 28px 角) で背景の変化を視認しやすくする
+ *   - 基調色が空の場合は背景設定をリセットする
+ *
+ * @function applyCheckerboardBackground
+ * @param {HTMLElement} target - 背景を適用する要素。
+ * @param {string} baseColor - 基調となるカラーコード。空文字の場合はリセット。
+ * @returns {void} 返り値はありません。
+ */
+function applyCheckerboardBackground(target, baseColor) {
+    if (!target) {
+        return;
+    }
+
+    if (!baseColor) {
+        target.style.backgroundColor = "";
+        target.style.backgroundImage = "";
+        target.style.backgroundSize = "";
+        target.style.backgroundPosition = "";
+        return;
+    }
+
+    const patternOpacity = 0.28;
+    const patternSize = 28;
+    const halfSize = patternSize / 2;
+    const overlay = `linear-gradient(45deg, rgba(255, 255, 255, ${patternOpacity}) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, ${patternOpacity}) 75%, rgba(255, 255, 255, ${patternOpacity}))`;
+
+    target.style.backgroundColor = baseColor;
+    target.style.backgroundImage = `${overlay}, ${overlay}`;
+    target.style.backgroundPosition = `0 0, ${halfSize}px ${halfSize}px`;
+    target.style.backgroundSize = `${patternSize}px ${patternSize}px`;
+}
+
+// ----------------------------------------
+/**
+ * 指定した要素に横線のストライプ背景を適用する。
+ *
+ * 機能:
+ *   - 基調色を背景に設定し、半透明の白い横線を重ねる
+ *   - 粗めのピッチで状態差分を視認しやすくする
+ *   - 基調色が空の場合は背景設定をリセットする
+ *
+ * @function applyStripedBackground
+ * @param {HTMLElement} target - 背景を適用する要素。
+ * @param {string} baseColor - 基調となるカラーコード。空文字の場合はリセット。
+ * @returns {void} 返り値はありません。
+ */
+function applyStripedBackground(target, baseColor) {
+    if (!target) {
+        return;
+    }
+
+    if (!baseColor) {
+        target.style.backgroundColor = "";
+        target.style.backgroundImage = "";
+        target.style.backgroundSize = "";
+        target.style.backgroundPosition = "";
+        return;
+    }
+
+    const stripeOpacity = 0.26;
+    const stripeSize = 18;
+    const overlay = `repeating-linear-gradient(180deg, rgba(255, 255, 255, ${stripeOpacity}) 0, rgba(255, 255, 255, ${stripeOpacity}) ${stripeSize / 2}px, transparent ${stripeSize / 2}px, transparent ${stripeSize}px)`;
+
+    target.style.backgroundColor = baseColor;
+    target.style.backgroundImage = overlay;
+    target.style.backgroundPosition = "0 0";
+    target.style.backgroundSize = `${stripeSize}px ${stripeSize}px`;
+}
+
+// ----------------------------------------
 /**
  * 板データを HTML テーブルへ描画する。
  *
@@ -121,19 +223,8 @@ function setupCancelState() {
     }
 
     const updateBackground = () => {
-        const isLongChecked = cancelLong.checked;
-        const isShortChecked = cancelShort.checked;
-
-        let backgroundColor = "";
-        if (isLongChecked && isShortChecked) {
-            backgroundColor = "#A15FC2";
-        } else if (isLongChecked) {
-            backgroundColor = "#FF6685";
-        } else if (isShortChecked) {
-            backgroundColor = "#4258FF";
-        }
-
-        cancelContainer.style.backgroundColor = backgroundColor;
+        const backgroundColor = determineSelectionColor(cancelLong.checked, cancelShort.checked);
+        applyStripedBackground(cancelContainer, backgroundColor);
     };
 
     cancelLong.addEventListener("change", updateBackground);
@@ -199,7 +290,39 @@ function setupCancelButton() {
     });
 }
 
+// ----------------------------------------
+/**
+ * 決済注文エリアのチェック状態に応じて、斜めチェッカーボード背景で配色を切り替える。
+ *
+ * 機能:
+ *   - キャンセルと同じ組み合わせ判定で基調色を決定する
+ *   - 基調色に粗めの斜めチェッカーボード柄を重ねる
+ *   - チェック解除時には背景を初期状態に戻す
+ *
+ * @function setupCloseState
+ * @returns {void} 返り値はありません。
+ */
+function setupCloseState() {
+    const closeContainer = document.getElementById("close");
+    const closeLong = document.getElementById("close__long");
+    const closeShort = document.getElementById("close__short");
+
+    if (!closeContainer || !closeLong || !closeShort) {
+        return;
+    }
+
+    const updateBackground = () => {
+        const baseColor = determineSelectionColor(closeLong.checked, closeShort.checked);
+        applyCheckerboardBackground(closeContainer, baseColor);
+    };
+
+    closeLong.addEventListener("change", updateBackground);
+    closeShort.addEventListener("change", updateBackground);
+    updateBackground();
+}
+
 setupRowClick();
 startOrderBookPolling();
 setupCancelState();
+setupCloseState();
 setupCancelButton();
