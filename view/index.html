@@ -7,6 +7,7 @@
     <title>{{ .title }}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/static/lib/iziToast/iziToast.css">
     <link rel="stylesheet" href="/static/index.css">
 </head>
@@ -44,13 +45,19 @@
                         <h2 class="text-xl font-semibold text-white">注文取消</h2>
                     </div>
                     <div class="cancel__checkboxes grid grid-cols-1 gap-3">
-                        <label class="group flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-sky-500/70 hover:shadow-sky-900/50">
+                        <label class="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-sky-500/70 hover:shadow-sky-900/50">
                             <span class="text-sm font-semibold text-white">買建 (ロング)</span>
-                            <input type="checkbox" id="cancel__long" class="h-5 w-5 accent-sky-400">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="cancel__long" class="peer sr-only">
+                                <div class="relative h-6 w-11 rounded-full border border-slate-700 bg-slate-800 transition peer-focus:ring-2 peer-focus:ring-sky-300 peer-checked:border-sky-300 peer-checked:bg-sky-500 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-400 after:bg-white after:transition-transform after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                            </div>
                         </label>
-                        <label class="group flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-sky-500/70 hover:shadow-sky-900/50">
+                        <label class="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-sky-500/70 hover:shadow-sky-900/50">
                             <span class="text-sm font-semibold text-white">売建 (ショート)</span>
-                            <input type="checkbox" id="cancel__short" class="h-5 w-5 accent-sky-400">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="cancel__short" class="peer sr-only">
+                                <div class="relative h-6 w-11 rounded-full border border-slate-700 bg-slate-800 transition peer-focus:ring-2 peer-focus:ring-sky-300 peer-checked:border-sky-300 peer-checked:bg-sky-500 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-400 after:bg-white after:transition-transform after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                            </div>
                         </label>
                     </div>
                     <button id="cancel__btn" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-900/60 transition hover:shadow-xl hover:shadow-sky-800/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-sky-300">
@@ -63,19 +70,28 @@
                         <h2 class="text-xl font-semibold text-white">建玉返済</h2>
                     </div>
 
-                    <label class="mt-1 flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-emerald-400/70 hover:shadow-emerald-900/50">
-                        <input type="checkbox" id="close__only_profit" checked class="h-5 w-5 accent-emerald-400">
+                    <label class="mt-1 flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-teal-400/70 hover:shadow-teal-900/50">
                         <span class="text-sm font-semibold text-white">利確可建玉のみ</span>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="close__only_profit" checked class="peer sr-only">
+                            <div class="relative h-6 w-11 rounded-full border border-slate-700 bg-slate-800 transition peer-focus:ring-2 peer-focus:ring-teal-300 peer-checked:border-teal-300 peer-checked:bg-teal-500 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-400 after:bg-white after:transition-transform after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                        </div>
                     </label>
 
                     <div class="close__checkboxes mt-3 grid grid-cols-1 gap-3">
-                        <label class="flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-emerald-400/70 hover:shadow-emerald-900/50">
-                            <span class="text-sm font-semibold text-white">買建 (ロング)</span>
-                            <input type="checkbox" id="close__long" class="h-5 w-5 accent-emerald-400">
+                        <label class="flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-emerald-400/70 hover:shadow-emerald-900/50">
+                            <span class="text-sm font-semibold text-white">買い (ロング)</span>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="close__long" class="peer sr-only">
+                                <div class="relative h-6 w-11 rounded-full border border-slate-700 bg-slate-800 transition peer-focus:ring-2 peer-focus:ring-emerald-300 peer-checked:border-emerald-300 peer-checked:bg-emerald-500 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-400 after:bg-white after:transition-transform after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                            </div>
                         </label>
-                        <label class="flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-emerald-400/70 hover:shadow-emerald-900/50">
-                            <span class="text-sm font-semibold text-white">売建 (ショート)</span>
-                            <input type="checkbox" id="close__short" class="h-5 w-5 accent-emerald-400">
+                        <label class="flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-emerald-400/70 hover:shadow-emerald-900/50">
+                            <span class="text-sm font-semibold text-white">売り (ショート)</span>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="close__short" class="peer sr-only">
+                                <div class="relative h-6 w-11 rounded-full border border-slate-700 bg-slate-800 transition peer-focus:ring-2 peer-focus:ring-emerald-300 peer-checked:border-emerald-300 peer-checked:bg-emerald-500 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-400 after:bg-white after:transition-transform after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+                            </div>
                         </label>
                     </div>
                     <button id="close__btn" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/60 transition hover:shadow-xl hover:shadow-emerald-800/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-emerald-300">
@@ -83,9 +99,11 @@
                     </button>
                 </section>
             </div>
+            </div>
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/static/lib/iziToast/iziToast.js"></script>
     <script src="/static/index.js"></script>

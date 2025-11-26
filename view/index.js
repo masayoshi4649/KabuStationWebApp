@@ -34,9 +34,11 @@ function determineSelectionColor(isLongChecked, isShortChecked) {
  * @function applyCheckerboardBackground
  * @param {HTMLElement} target - 背景を適用する対象要素。
  * @param {string} baseColor - ベースとなるカラーコード。空文字の場合は元の背景に戻す。
+ * @param {number} angleDeg - チェック枠の回転角度（度）。
+ * @param {boolean} shiftPattern - 斜めチェック枠の位置を半マスずらすかどうか。
  * @returns {void} 返り値はありません。
  */
-function applyCheckerboardBackground(target, baseColor) {
+function applyCheckerboardBackground(target, baseColor, angleDeg = 0, shiftPattern = false) {
     if (!target) {
         return;
     }
@@ -52,11 +54,15 @@ function applyCheckerboardBackground(target, baseColor) {
     const patternOpacity = 0.28;
     const patternSize = 28;
     const halfSize = patternSize / 2;
-    const overlay = `linear-gradient(45deg, rgba(255, 255, 255, ${patternOpacity}) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, ${patternOpacity}) 75%, rgba(255, 255, 255, ${patternOpacity}))`;
+    const overlayPrimary = `linear-gradient(${angleDeg}deg, rgba(255, 255, 255, ${patternOpacity}) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, ${patternOpacity}) 75%, rgba(255, 255, 255, ${patternOpacity}))`;
+    const overlaySecondary = `linear-gradient(${angleDeg + 90}deg, rgba(255, 255, 255, ${patternOpacity}) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, ${patternOpacity}) 75%, rgba(255, 255, 255, ${patternOpacity}))`;
 
     target.style.backgroundColor = baseColor;
-    target.style.backgroundImage = `${overlay}, ${overlay}`;
-    target.style.backgroundPosition = `0 0, ${halfSize}px ${halfSize}px`;
+    const offset = shiftPattern ? halfSize / 2 : 0;
+    const firstPos = `${offset}px ${offset}px`;
+    const secondPos = `${offset + halfSize}px ${offset + halfSize}px`;
+    target.style.backgroundImage = `${overlayPrimary}, ${overlaySecondary}`;
+    target.style.backgroundPosition = `${firstPos}, ${secondPos}`;
     target.style.backgroundSize = `${patternSize}px ${patternSize}px`;
 }
 
@@ -326,16 +332,22 @@ function setupCloseState() {
     const closeContainer = document.getElementById("close");
     const closeLong = document.getElementById("close__long");
     const closeShort = document.getElementById("close__short");
+    const closeOnlyProfit = document.getElementById("close__only_profit");
 
-    if (!closeContainer || !closeLong || !closeShort) {
+    if (!closeContainer || !closeLong || !closeShort || !closeOnlyProfit) {
         return;
     }
 
     const updateBackground = () => {
+        const hasProfitOnly = closeOnlyProfit.checked;
         const baseColor = determineSelectionColor(closeLong.checked, closeShort.checked);
-        applyCheckerboardBackground(closeContainer, baseColor);
+        const angleDeg = hasProfitOnly ? 45 : 0;
+        const shiftPattern = false;
+
+        applyCheckerboardBackground(closeContainer, baseColor, angleDeg, shiftPattern);
     };
 
+    closeOnlyProfit.addEventListener("change", updateBackground);
     closeLong.addEventListener("change", updateBackground);
     closeShort.addEventListener("change", updateBackground);
     updateBackground();
