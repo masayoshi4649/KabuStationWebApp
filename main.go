@@ -34,6 +34,10 @@ const httpListenAddr = ":8080"
 // 返り値と型:
 //   - なし
 func main() {
+	orderBook = []BookRow{
+		{Price: 0, Current: true, SellQty: 0, BuyQty: 0},
+	}
+
 	// 設定ファイルパスの取得と初期値設定
 	var confPath string
 	flag.StringVar(&confPath, "c", "app.toml", "設定ファイルへのパスを指定するフラグ")

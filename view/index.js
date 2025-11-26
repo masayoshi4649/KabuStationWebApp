@@ -2,16 +2,15 @@ const ORDERBOOK_ENDPOINT = "/book";
 
 // ----------------------------------------
 /**
- * チェック状態に応じてキャンセル/決済エリアで使う基調色を決定する。
+ * チェック状態に応じた基調色を算出する。
  *
- * 機能:
- *   - ロングとショートの選択組み合わせに応じて 3 パターンの色を返す
- *   - 未選択時は空文字を返し背景を初期化しやすくする
+ * ロング・ショートの選択有無を判定し、強調用の 16 進カラーコードを返す。
+ * どちらも未選択の場合は背景リセット用に空文字を返す。
  *
  * @function determineSelectionColor
  * @param {boolean} isLongChecked - ロングが選択されているかどうか。
  * @param {boolean} isShortChecked - ショートが選択されているかどうか。
- * @returns {string} 選択状態に応じた 16 進カラーコード。未選択の場合は空文字を返します。
+ * @returns {string} 選択状態に対応する 16 進カラーコード。未選択時は空文字を返します。
  */
 function determineSelectionColor(isLongChecked, isShortChecked) {
     if (isLongChecked && isShortChecked) {
@@ -28,16 +27,13 @@ function determineSelectionColor(isLongChecked, isShortChecked) {
 
 // ----------------------------------------
 /**
- * 指定した要素に粗めの斜めチェッカーボード背景を適用する。
+ * 指定した要素に市松模様の背景を適用する。
  *
- * 機能:
- *   - 基調色を背景色として設定し、半透明の白でパターンを重ねる
- *   - 粗めのマス目 (約 28px 角) で背景の変化を視認しやすくする
- *   - 基調色が空の場合は背景設定をリセットする
+ * ベースカラーの上にグリッド状のオーバーレイを重ね、選択状態を視覚化する。
  *
  * @function applyCheckerboardBackground
- * @param {HTMLElement} target - 背景を適用する要素。
- * @param {string} baseColor - 基調となるカラーコード。空文字の場合はリセット。
+ * @param {HTMLElement} target - 背景を適用する対象要素。
+ * @param {string} baseColor - ベースとなるカラーコード。空文字の場合は元の背景に戻す。
  * @returns {void} 返り値はありません。
  */
 function applyCheckerboardBackground(target, baseColor) {
@@ -66,16 +62,13 @@ function applyCheckerboardBackground(target, baseColor) {
 
 // ----------------------------------------
 /**
- * 指定した要素に横線のストライプ背景を適用する。
+ * 指定した要素にストライプ模様の背景を適用する。
  *
- * 機能:
- *   - 基調色を背景に設定し、半透明の白い横線を重ねる
- *   - 粗めのピッチで状態差分を視認しやすくする
- *   - 基調色が空の場合は背景設定をリセットする
+ * ベースカラーの上に垂直ストライプを重ね、選択状態を視覚的に分かりやすくする。
  *
  * @function applyStripedBackground
- * @param {HTMLElement} target - 背景を適用する要素。
- * @param {string} baseColor - 基調となるカラーコード。空文字の場合はリセット。
+ * @param {HTMLElement} target - 背景を適用する対象要素。
+ * @param {string} baseColor - ベースとなるカラーコード。空文字の場合は元の背景に戻す。
  * @returns {void} 返り値はありません。
  */
 function applyStripedBackground(target, baseColor) {
@@ -103,12 +96,12 @@ function applyStripedBackground(target, baseColor) {
 
 // ----------------------------------------
 /**
- * 板データを HTML テーブルへ描画する。
+ * 取得した板情報をテーブルへ描画する。
  *
- * 受け取った配列を行ごとに生成し、現在値行や数量に応じてクラスを付与して更新する。
+ * 受け取った配列を 1 行ずつ組み立て、強調用のクラスや data 属性を付与する。
  *
  * @function renderOrderBook
- * @param {Array<Object>} data - API から取得した板行データの配列。
+ * @param {Array<Object>} data - API から取得した板データ配列。
  * @returns {void} 返り値はありません。
  */
 function renderOrderBook(data) {
@@ -117,40 +110,76 @@ function renderOrderBook(data) {
 
     data.forEach(item => {
         const tr = document.createElement("tr");
-        tr.classList.add("orderbook-row");
+        tr.classList.add(
+            "orderbook-row",
+            "rounded-2xl",
+            "border",
+            "border-slate-800/60",
+            "bg-slate-900/60",
+            "text-slate-100",
+            "shadow",
+            "shadow-slate-950/40",
+            "transition",
+            "hover:-translate-y-[1px]",
+            "hover:bg-slate-800/80",
+            "hover:shadow-lg",
+            "hover:shadow-slate-900/50"
+        );
         tr.dataset.price = item.Price;
 
-        // 売り数量セル
+        // 売数量セル
         const askTd = document.createElement("td");
         askTd.classList.add(
             "orderbook-ask",
-            "has-text-link",
-            "has-text-right"
+            "px-3",
+            "py-2",
+            "text-right",
+            "text-emerald-300",
+            "font-semibold",
+            "bg-emerald-500/5",
+            "first:rounded-l-2xl"
         );
         askTd.textContent = item.SellQty > 0 ? item.SellQty.toLocaleString() : "";
 
-        // 中央価格セル
+        // 価格セル
         const priceTd = document.createElement("td");
         priceTd.classList.add(
             "orderbook-price",
-            "has-text-centered"
+            "px-3",
+            "py-2",
+            "text-center",
+            "font-semibold",
+            "text-slate-100",
+            "tracking-tight",
+            "bg-slate-800/60"
         );
         priceTd.textContent = item.Price.toFixed(2);
 
         if (item.Current) {
             priceTd.classList.add(
-                "has-background-primary-dark",
-                "has-text-white",
-                "has-text-weight-bold"
+                "bg-gradient-to-r",
+                "from-sky-600/70",
+                "to-fuchsia-600/60",
+                "text-white",
+                "font-bold",
+                "ring-1",
+                "ring-sky-300/60",
+                "shadow-lg",
+                "shadow-slate-900/60"
             );
         }
 
-        // 買い数量セル
+        // 買数量セル
         const bidTd = document.createElement("td");
         bidTd.classList.add(
             "orderbook-bid",
-            "has-text-danger",
-            "has-text-left"
+            "px-3",
+            "py-2",
+            "text-left",
+            "text-rose-300",
+            "font-semibold",
+            "bg-rose-500/5",
+            "last:rounded-r-2xl"
         );
         bidTd.textContent = item.BuyQty > 0 ? item.BuyQty.toLocaleString() : "";
 
@@ -164,7 +193,7 @@ function renderOrderBook(data) {
 
 // ----------------------------------------
 /**
- * テーブル行のクリックイベントを監視し、選択した価格をコンソールへ出力する。
+ * テーブル行のクリックイベントを設定し、選択価格をログへ出力する。
  *
  * @function setupRowClick
  * @returns {void} 返り値はありません。
@@ -180,10 +209,10 @@ function setupRowClick() {
 
 // ----------------------------------------
 /**
- * 板データを API から取得し、描画処理を行う。
+ * 板情報を API から取得し、描画する。
  *
  * @function fetchOrderBook
- * @returns {Promise<void>} 描画完了を示す Promise。通信に失敗した場合はエラーをログ出力する。
+ * @returns {Promise<void>} 描画完了までの Promise。通信に失敗した場合はエラーを出力する。
  */
 async function fetchOrderBook() {
     try {
@@ -196,7 +225,7 @@ async function fetchOrderBook() {
 
 // ----------------------------------------
 /**
- * 初期描画を行い、1 秒ごとに板データを取得・更新するポーリングを開始する。
+ * 板情報の取得を開始し、1 秒間隔でポーリングする。
  *
  * @function startOrderBookPolling
  * @returns {void} 返り値はありません。
@@ -208,7 +237,7 @@ function startOrderBookPolling() {
 
 // ----------------------------------------
 /**
- * キャンセル選択エリアのチェック状態に応じて背景色を切り替える。
+ * 注文取消カードの背景をチェック状態に応じて更新する。
  *
  * @function setupCancelState
  * @returns {void} 返り値はありません。
@@ -234,15 +263,11 @@ function setupCancelState() {
 
 // ----------------------------------------
 /**
- * キャンセルボタン押下時の送信処理をセットアップする。
+ * 注文取消ボタンの送信処理をセットアップする。
  *
- * 機能:
- *   - 現在のチェック状態をペイロードに含めて /order/cancel へ送信する
- *   - 送信後にチェックボックスをオフへ戻し背景色を更新する
- *   - レスポンスに応じてトーストを表示する
- *
- * 引数およびその型: なし
- * 返り値およびその型: {void} 返り値はありません。
+ * - 現在のチェック状態をペイロードとして /order/cancel へ送信する。
+ * - 送信後にチェック状態と背景をリセットする。
+ * - 結果に応じてトーストを表示する。
  *
  * @function setupCancelButton
  * @returns {void} 返り値はありません。
@@ -271,20 +296,20 @@ function setupCancelButton() {
             const response = await axios.post("/order/cancel", payload);
             if (response.status === 200) {
                 iziToast.success({
-                    title: '注文取消',
-                    message: '送信が完了しました',
+                    title: "注文取消",
+                    message: "送信が完了しました",
                 });
             } else {
                 iziToast.error({
-                    title: '注文取消',
-                    message: '送信が失敗しました',
+                    title: "注文取消",
+                    message: "送信が失敗しました",
                 });
             }
         } catch (error) {
             console.error("注文取消の送信に失敗しました", error);
             iziToast.error({
-                title: '注文取消',
-                message: '送信が失敗しました',
+                title: "注文取消",
+                message: "送信が失敗しました",
             });
         }
     });
@@ -292,12 +317,7 @@ function setupCancelButton() {
 
 // ----------------------------------------
 /**
- * 決済注文エリアのチェック状態に応じて、斜めチェッカーボード背景で配色を切り替える。
- *
- * 機能:
- *   - キャンセルと同じ組み合わせ判定で基調色を決定する
- *   - 基調色に粗めの斜めチェッカーボード柄を重ねる
- *   - チェック解除時には背景を初期状態に戻す
+ * 建玉返済カードの背景をチェック状態に応じて更新する。
  *
  * @function setupCloseState
  * @returns {void} 返り値はありません。
