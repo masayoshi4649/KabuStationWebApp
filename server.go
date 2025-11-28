@@ -51,6 +51,7 @@ func registerHTTPRoutes(rt *gin.Engine) {
 	rt.GET("/book", handleBookGET)
 
 	rt.POST("/order/cancel", handleOrderCancelPOST)
+	rt.POST("/order/close", handleOrderClosePOST)
 
 }
 
@@ -95,6 +96,12 @@ func handleBookGET(c *gin.Context) {
 type ReqOrderCancelPOST struct {
 	Long  bool `json:"long"`
 	Short bool `json:"short"`
+}
+
+type ReqOrderClosePOST struct {
+	Long       bool `json:"long"`
+	Short      bool `json:"short"`
+	OnlyProfit bool `json:"only_profit"`
 }
 
 // handleOrderCancelPOST は、注文取消用の JSON ペイロードを受信し、現在の注文情報を取得した上で取消処理を実行します。
@@ -211,5 +218,31 @@ func handleOrderCancelPOST(c *gin.Context) {
 	}
 	// ----------------------------------------
 
+	c.Status(http.StatusOK)
+}
+
+// handleOrderClosePOST は、建玉決済の希望条件を JSON で受信し、現状は受信内容の記録のみを行うハンドラです。
+//
+// 主な特徴:
+//   - long/short/only_profit の 3 つの真偽値を ShouldBindJSON でバインドする
+//   - バインドに失敗した場合は 400 を返し、エラーログへ詳細を出力する
+//   - 現段階では受信内容をログに残すのみで、外部 API 呼び出しは行わない
+//
+// 引数:
+//   - c *gin.Context: HTTP リクエストコンテキスト
+//
+// 返り値:
+//   - なし
+func handleOrderClosePOST(c *gin.Context) {
+	var req ReqOrderClosePOST
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Println("handleOrderClosePOST ペイロードの読み取りに失敗", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "リクエストボディの形式が正しくありません",
+		})
+		return
+	}
+
+	log.Printf("handleOrderClosePOST long=%t short=%t only_profit=%t\n", req.Long, req.Short, req.OnlyProfit)
 	c.Status(http.StatusOK)
 }

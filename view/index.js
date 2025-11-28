@@ -353,8 +353,67 @@ function setupCloseState() {
     updateBackground();
 }
 
+// ----------------------------------------
+/**
+ * 取引終了の送信処理を設定します。
+ *
+ * - close ブロックの long/short/only_profit を /order/close へ送信します。
+ * - 送信後にチェック状態を初期化し、背景更新用の change イベントを発火させます。
+ * - 成否に応じてトーストで結果を知らせます。
+ *
+ * @function setupCloseButton
+ * @returns {void} 返り値はありません。
+ */
+function setupCloseButton() {
+    const closeButton = document.getElementById("close__btn");
+    const closeLong = document.getElementById("close__long");
+    const closeShort = document.getElementById("close__short");
+    const closeOnlyProfit = document.getElementById("close__only_profit");
+
+    if (!closeButton || !closeLong || !closeShort || !closeOnlyProfit) {
+        return;
+    }
+
+    closeButton.addEventListener("click", async () => {
+        const payload = {
+            long: closeLong.checked,
+            short: closeShort.checked,
+            only_profit: closeOnlyProfit.checked
+        };
+
+        closeLong.checked = false;
+        closeShort.checked = false;
+        closeOnlyProfit.checked = true;
+        closeLong.dispatchEvent(new Event("change"));
+        closeShort.dispatchEvent(new Event("change"));
+        closeOnlyProfit.dispatchEvent(new Event("change"));
+
+        try {
+            const response = await axios.post("/order/close", payload);
+            if (response.status === 200) {
+                iziToast.success({
+                    title: "成功",
+                    message: "送信に成功しました",
+                });
+            } else {
+                iziToast.error({
+                    title: "失敗",
+                    message: "送信に失敗しました",
+                });
+            }
+        } catch (error) {
+            console.error("建玉決済ボタンの送信に失敗しました", error);
+            iziToast.error({
+                title: "失敗",
+                message: "送信に失敗しました",
+            });
+        }
+    });
+}
+
 setupRowClick();
 startOrderBookPolling();
 setupCancelState();
 setupCloseState();
 setupCancelButton();
+setupCloseButton();
