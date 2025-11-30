@@ -70,3 +70,24 @@ button {
         max-width: 1040px;
     }
 }
+
+#open .open__top-grid {
+    gap: 0.75rem;
+}
+
+#open .open-area--a {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+}
+
+@media (min-width: 640px) {
+    #open .open__top-grid {
+        grid-template-columns: 140px 1fr;
+    }
+
+    #open .open-area--a {
+        width: 140px;
+        max-width: 160px;
+    }
+}
