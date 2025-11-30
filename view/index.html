@@ -21,8 +21,8 @@
 
         <!--
         [コンポーネント概要]
-        #orderbook-panel は板情報テーブルです。現在値を中心に、売買数量を左右に並べます。
-        #open は即時注文の入力フォームです。方向・種別を選択し、価格と数量を指定して即時発注します。
+        #orderbook-panel は板情報を一覧表示するセクションです。
+        ヘッダー行は固定ラベルを表示し、#orderbook-body に JS で価格・数量の行を追加します。
         -->
 
         <div class="layout-panels">
@@ -49,6 +49,13 @@
             </section>
 
             <div class="flex flex-col gap-5 xl:gap-6">
+                <!--
+                [コンポーネント概要]
+                #open は新規注文（指値 / 逆指値）を入力・送信するセクションです。
+                immediate__direction と immediate__type で売買区分と注文種別を切り替えます。
+                immediate__start_price・immediate__interval・immediate__size で価格刻みや数量を指定します。
+                immediate__preview_box で発注内容を表示し、open__btn で送信します。
+                -->
                 <section id="open"
                     class="rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
                     <div class="flex items-start justify-between gap-3">
@@ -172,6 +179,12 @@
                     </button>
                 </section>
 
+                <!--
+                [コンポーネント概要]
+                #cancel は未約定注文の一括キャンセルを行うセクションです。
+                cancel__long / cancel__short のトグルで買い・売りの対象を切り替えます。
+                cancel__btn で選択状態に沿ってキャンセルリクエストを送信します。
+                -->
                 <section id="cancel"
                     class="rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
                     <div class="flex items-start justify-between gap-3">
@@ -210,6 +223,12 @@
                     </button>
                 </section>
 
+                <!--
+                [コンポーネント概要]
+                #close は保有ポジションを決済するセクションです。
+                close__only_profit で利益側のみ決済するかを指定し、close__long / close__short で方向を選択します。
+                close__btn を押すと設定に沿った決済注文を送信します。
+                -->
                 <section id="close"
                     class="rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
                     <div class="flex items-start justify-between gap-3">
@@ -256,7 +275,7 @@
                     </div>
                     <button id="close__btn"
                         class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/60 transition hover:shadow-xl hover:shadow-emerald-800/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-emerald-300">
-                        返 済
+                        返済
                     </button>
                 </section>
             </div>
