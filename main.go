@@ -13,6 +13,7 @@ import (
 )
 
 var (
+	current   float64
 	orderBook []BookRow
 	bookMu    sync.RWMutex
 )
@@ -141,6 +142,8 @@ func updateBook(q kabusapi.Quote) {
 	if cfg.Trade.OneTick <= 0 {
 		return
 	}
+
+	current = q.CurrentPrice
 
 	toTick := func(p float64) int64 { return int64(math.Round(p / cfg.Trade.OneTick)) }
 	fromTick := func(t int64) float64 { return float64(t) * cfg.Trade.OneTick }

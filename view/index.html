@@ -12,15 +12,22 @@
     <link rel="stylesheet" href="/static/index.css">
 </head>
 
-<body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
+<body class="min-h-screen bg-slate-950 text-slate-100 antialiased" data-onetick="{{ .onetick }}"
+    data-current="{{ .current }}">
     <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
         <header class="mb-8">
             <h1 class="text-3xl font-bold leading-tight text-white sm:text-4xl">{{ .title }}</h1>
         </header>
 
+        <!--
+        [コンポーネント概要]
+        #orderbook-panel は板情報テーブルです。現在値を中心に、売買数量を左右に並べます。
+        #open は即時注文の入力フォームです。方向・種別を選択し、価格と数量を指定して即時発注します。
+        -->
+
         <div class="layout-panels">
-            <section
-                class="orderbook-panel rounded-3xl border border-slate-800/80 bg-slate-900/70 shadow-2xl shadow-slate-950/60 backdrop-blur-xl">
+            <section id="orderbook-panel"
+                class="rounded-3xl border border-slate-800/80 bg-slate-900/70 shadow-2xl shadow-slate-950/60 backdrop-blur-xl">
                 <div class="border-b border-slate-800/80 px-6 py-4">
                     <p class="text-lg font-semibold text-white">板情報</p>
                 </div>
@@ -30,9 +37,9 @@
                         <table class="w-full border-separate border-spacing-y-2 text-xs sm:text-sm">
                             <thead class="text-slate-300">
                                 <tr class="text-left">
-                                    <th class="px-3 py-2 text-right font-semibold tracking-wide">売気配</th>
+                                    <th class="px-3 py-2 text-right font-semibold tracking-wide">売数量</th>
                                     <th class="px-3 py-2 text-center font-semibold tracking-wide">価格</th>
-                                    <th class="px-3 py-2 text-left font-semibold tracking-wide">買気配</th>
+                                    <th class="px-3 py-2 text-left font-semibold tracking-wide">買数量</th>
                                 </tr>
                             </thead>
                             <tbody id="orderbook-body"></tbody>
@@ -41,53 +48,144 @@
                 </div>
             </section>
 
-            <div class="side-panel-group">
-
-                <!-- 新規注文 -->
+            <div class="flex flex-col gap-5 xl:gap-6">
                 <section id="open"
-                    class="open-panel rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
-                    <div class="mb-4">
-                        <h2 class="text-xl font-semibold text-white">新規注文</h2>
+                    class="rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-semibold text-white">即時注文（指値 / 逆指値）</h2>
+                            <p class="text-xs text-slate-400">開始価格と数量を指定し、方向と種別を選んで即時発注します。</p>
+                        </div>
+                        <span
+                            class="rounded-full bg-slate-800 px-3 py-1 text-[11px] font-semibold text-slate-100">即時発注</span>
                     </div>
-                    <div class="open__checkboxes grid grid-cols-1 gap-3">
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div
+                            class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-inner shadow-slate-950/70">
+                            <p class="text-xs font-semibold text-slate-300">方向</p>
+                            <div class="mt-2 flex gap-2">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="immediate__direction" value="buy" class="peer sr-only"
+                                        checked>
+                                    <div
+                                        class="rounded-xl bg-gradient-to-r from-rose-200/80 to-rose-500/80 px-4 py-3 text-center font-semibold text-rose-950 shadow peer-checked:ring-2 peer-checked:ring-rose-200/80">
+                                        買建
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="immediate__direction" value="sell" class="peer sr-only">
+                                    <div
+                                        class="rounded-xl bg-gradient-to-r from-blue-200/80 to-blue-500/80 px-4 py-3 text-center font-semibold text-blue-950 shadow peer-checked:ring-2 peer-checked:ring-blue-200/80">
+                                        売建
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-inner shadow-slate-950/70">
+                            <p class="text-xs font-semibold text-slate-300">種別</p>
+                            <div class="mt-2 flex gap-2">
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="immediate__type" value="limit" class="peer sr-only"
+                                        checked>
+                                    <div
+                                        class="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-center font-semibold text-white shadow peer-checked:border-emerald-300 peer-checked:text-emerald-200 peer-checked:shadow-emerald-800/60">
+                                        指値
+                                    </div>
+                                </label>
+                                <label class="flex-1 cursor-pointer">
+                                    <input type="radio" name="immediate__type" value="stop" class="peer sr-only">
+                                    <div
+                                        class="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-center font-semibold text-white shadow peer-checked:border-amber-300 peer-checked:text-amber-100 peer-checked:shadow-amber-800/60">
+                                        逆指値
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid gap-3 sm:grid-cols-3">
                         <label
-                            class="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-sky-500/70 hover:shadow-sky-900/50">
-                            <span class="text-sm font-semibold text-white">買建 (ロング)</span>
-                            <div class="flex items-center gap-2">
-                                <input type="checkbox" id="open__long" class="peer sr-only">
-                                <div
-                                    class="relative h-6 w-11 rounded-full border border-slate-700 bg-slate-800 transition peer-focus:ring-2 peer-focus:ring-sky-300 peer-checked:border-sky-300 peer-checked:bg-sky-500 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-400 after:bg-white after:transition-transform after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white">
+                            class="flex flex-col gap-1 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 shadow-inner shadow-slate-950/70">
+                            <span class="text-xs font-semibold text-slate-300">開始価格</span>
+                            <input type="number" inputmode="decimal" id="immediate__start_price" value="{{ .current }}"
+                                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-white focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/40"
+                                placeholder="{{ .current }}">
+                        </label>
+                        <div
+                            class="rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 shadow-inner shadow-slate-950/70">
+                            <p class="text-xs font-semibold text-slate-300">間隔</p>
+                            <div class="mt-2 flex flex-col gap-1">
+                                <div class="flex">
+                                    <button type="button" id="immediate__interval_up"
+                                        class="w-full rounded-lg border border-slate-700 px-2 py-1.5 text-sm font-semibold text-slate-100 transition hover:border-slate-500 hover:bg-slate-800">＋</button>
+                                </div>
+                                <input type="number" inputmode="decimal" id="immediate__interval" value="{{ .onetick }}"
+                                    class="w-full min-w-[110px] rounded-xl border border-slate-700 bg-slate-950 px-2.5 py-2 text-center text-base font-bold text-white focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/40"
+                                    step="{{ .onetick }}" placeholder="{{ .onetick }}">
+                                <div class="flex">
+                                    <button type="button" id="immediate__interval_down"
+                                        class="w-full rounded-lg border border-slate-700 px-2 py-1.5 text-sm font-semibold text-slate-100 transition hover:border-slate-500 hover:bg-slate-800">－</button>
                                 </div>
                             </div>
-                        </label>
+                        </div>
                         <label
-                            class="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-sky-500/70 hover:shadow-sky-900/50">
-                            <span class="text-sm font-semibold text-white">売建 (ショート)</span>
-                            <div class="flex items-center gap-2">
-                                <input type="checkbox" id="open__short" class="peer sr-only">
-                                <div
-                                    class="relative h-6 w-11 rounded-full border border-slate-700 bg-slate-800 transition peer-focus:ring-2 peer-focus:ring-sky-300 peer-checked:border-sky-300 peer-checked:bg-sky-500 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-400 after:bg-white after:transition-transform after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white">
-                                </div>
+                            class="flex flex-col gap-1 rounded-2xl border border-slate-800 bg-slate-900/80 px-4 py-3 shadow-inner shadow-slate-950/70">
+                            <span class="text-xs font-semibold text-slate-300">数量</span>
+                            <div class="flex justify-end gap-2">
+                                <button type="button" data-immediate-size-delta="1"
+                                    class="rounded-lg border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800">+1</button>
+                                <button type="button" data-immediate-size-delta="5"
+                                    class="rounded-lg border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800">+5</button>
+                                <button type="button" data-immediate-size-delta="10"
+                                    class="rounded-lg border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800">+10</button>
+                            </div>
+                            <input type="number" id="immediate__size" value="1"
+                                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-white focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/40"
+                                min="1">
+                            <div class="flex justify-end gap-2">
+                                <button type="button" data-immediate-size-delta="-1"
+                                    class="rounded-lg border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800">-1</button>
+                                <button type="button" data-immediate-size-delta="-5"
+                                    class="rounded-lg border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800">-5</button>
+                                <button type="button" data-immediate-size-delta="-10"
+                                    class="rounded-lg border border-slate-700 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800">-10</button>
                             </div>
                         </label>
+                    </div>
+                    <div class="mt-4">
+                        <div
+                            class="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-inner shadow-slate-950/70">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-semibold text-slate-300">プレビュー</p>
+                                <span class="text-[11px] text-slate-400">注文方向・種別に応じて表示</span>
+                            </div>
+                            <div class="mt-3 rounded-xl bg-slate-950/70 p-3 text-slate-100 shadow"
+                                id="immediate__preview_box">
+                                <p class="text-[11px] font-semibold" id="immediate__preview_label">買い指値</p>
+                                <p class="mt-1 text-lg font-bold tracking-tight" id="immediate__preview_text">―</p>
+                            </div>
+                        </div>
                     </div>
                     <button id="open__btn"
-                        class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-900/60 transition hover:shadow-xl hover:shadow-sky-800/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-sky-300">
-                        SEND
+                        class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/60 transition hover:shadow-xl hover:shadow-rose-900/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-amber-300">
+                        発 注
                     </button>
                 </section>
 
-
-                <!-- 注文取消 -->
                 <section id="cancel"
-                    class="cancel-panel rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
-                    <div class="mb-4">
-                        <h2 class="text-xl font-semibold text-white">注文取消</h2>
+                    class="rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-semibold text-white">注文取消</h2>
+                            <p class="text-xs text-slate-400">指定方向の建玉関連注文を即時に取消します。</p>
+                        </div>
+                        <span
+                            class="rounded-full bg-slate-800 px-3 py-1 text-[11px] font-semibold text-slate-100">即時取消</span>
                     </div>
-                    <div class="cancel__checkboxes grid grid-cols-1 gap-3">
+                    <div class="mt-3 grid grid-cols-1 gap-3">
                         <label
                             class="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-sky-500/70 hover:shadow-sky-900/50">
-                            <span class="text-sm font-semibold text-white">買建 (ロング)</span>
+                            <span class="text-sm font-semibold text-white">買建</span>
                             <div class="flex items-center gap-2">
                                 <input type="checkbox" id="cancel__long" class="peer sr-only">
                                 <div
@@ -97,7 +195,7 @@
                         </label>
                         <label
                             class="group flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-sky-500/70 hover:shadow-sky-900/50">
-                            <span class="text-sm font-semibold text-white">売建 (ショート)</span>
+                            <span class="text-sm font-semibold text-white">売建</span>
                             <div class="flex items-center gap-2">
                                 <input type="checkbox" id="cancel__short" class="peer sr-only">
                                 <div
@@ -107,21 +205,25 @@
                         </label>
                     </div>
                     <button id="cancel__btn"
-                        class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-900/60 transition hover:shadow-xl hover:shadow-sky-800/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-sky-300">
-                        SEND
+                        class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-500 to-fuchsia-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/60 transition hover:shadow-xl hover:shadow-sky-800/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-sky-300">
+                        取 消
                     </button>
                 </section>
 
-                <!-- 建玉返済 -->
                 <section id="close"
-                    class="close-panel rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
-                    <div class="mb-4">
-                        <h2 class="text-xl font-semibold text-white">建玉返済</h2>
+                    class="rounded-3xl border border-slate-800/80 bg-slate-900/70 px-6 py-6 shadow-2xl shadow-slate-950/60 backdrop-blur-xl transition-colors duration-200">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="text-xl font-semibold text-white">建玉返済</h2>
+                            <p class="text-xs text-slate-400">保有建玉の決済方向を指定し、一括返済します。</p>
+                        </div>
+                        <span
+                            class="rounded-full bg-slate-800 px-3 py-1 text-[11px] font-semibold text-slate-100">決済</span>
                     </div>
 
                     <label
-                        class="mt-1 flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-teal-400/70 hover:shadow-teal-900/50">
-                        <span class="text-sm font-semibold text-white">利確可建玉のみ</span>
+                        class="mt-2 flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-teal-400/70 hover:shadow-teal-900/50">
+                        <span class="text-sm font-semibold text-white">含み益のみ返済</span>
                         <div class="flex items-center gap-2">
                             <input type="checkbox" id="close__only_profit" checked class="peer sr-only">
                             <div
@@ -130,10 +232,10 @@
                         </div>
                     </label>
 
-                    <div class="close__checkboxes mt-3 grid grid-cols-1 gap-3">
+                    <div class="mt-3 grid grid-cols-1 gap-3">
                         <label
                             class="flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-emerald-400/70 hover:shadow-emerald-900/50">
-                            <span class="text-sm font-semibold text-white">買い (ロング)</span>
+                            <span class="text-sm font-semibold text-white">買建</span>
                             <div class="flex items-center gap-2">
                                 <input type="checkbox" id="close__long" class="peer sr-only">
                                 <div
@@ -143,7 +245,7 @@
                         </label>
                         <label
                             class="flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3 shadow-inner shadow-slate-950/70 transition hover:border-emerald-400/70 hover:shadow-emerald-900/50">
-                            <span class="text-sm font-semibold text-white">売り (ショート)</span>
+                            <span class="text-sm font-semibold text-white">売建</span>
                             <div class="flex items-center gap-2">
                                 <input type="checkbox" id="close__short" class="peer sr-only">
                                 <div
@@ -154,12 +256,10 @@
                     </div>
                     <button id="close__btn"
                         class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/60 transition hover:shadow-xl hover:shadow-emerald-800/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-emerald-300">
-                        SEND
+                        返 済
                     </button>
                 </section>
-
             </div>
-        </div>
         </div>
     </main>
 

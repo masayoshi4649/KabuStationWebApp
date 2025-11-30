@@ -70,7 +70,9 @@ func handleIndexGET(c *gin.Context) {
 	title := fmt.Sprintf("%s（%s）", cfg.Trade.FutureCode, cfg.Trade.DerivMonth)
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title": title,
+		"title":   title,
+		"onetick": cfg.Trade.OneTick,
+		"current": current,
 	})
 }
 

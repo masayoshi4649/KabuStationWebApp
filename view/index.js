@@ -206,10 +206,18 @@ function renderOrderBook(data) {
  */
 function setupRowClick() {
     const tbody = document.getElementById("orderbook-body");
+    const startInput = document.getElementById("immediate__start_price");
     tbody.addEventListener("click", (event) => {
         const tr = event.target.closest("tr.orderbook-row");
         if (!tr) return;
-        console.log("clicked price:", tr.dataset.price);
+        const price = parseFloat(tr.dataset.price);
+        if (!Number.isFinite(price)) {
+            return;
+        }
+        if (startInput) {
+            startInput.value = price.toFixed(TICK_CONFIG.decimals);
+            startInput.dispatchEvent(new Event("input"));
+        }
     });
 }
 
@@ -411,9 +419,179 @@ function setupCloseButton() {
     });
 }
 
+// ----------------------------------------
+/**
+ * 1tick �̒l��ǂݍ���A�\�����ݒ肷��΃R���g���[����Ԃ��܂��B
+ *
+ * @function getTickConfig
+ * @returns {{tickValue: number, decimals: number}} 1tick�̒l�����x�����i�֖߂��܂��B
+ */
+function getTickConfig() {
+    const tickRaw = document.body?.dataset?.onetick;
+    const parsed = parseFloat(tickRaw);
+    const tickValue = Number.isFinite(parsed) && parsed > 0 ? parsed : 0.25;
+    const decimals = 2;
+    return { tickValue, decimals };
+}
+
+const TICK_CONFIG = getTickConfig();
+
+// ----------------------------------------
+/**
+ * ���͒l���w�����ϐ��f�[�^��A��ʂ�����ꍇ�� 1tick �̒l�ɖ߂��܂��B
+ *
+ * @function normalizeInterval
+ * @param {HTMLInputElement} input - �Ԋu�̓��̓v�[���_�E��
+ * @returns {number} �R�}���h�p�̃l�B
+ */
+function normalizeInterval(input) {
+    const parsed = parseFloat(input?.value);
+    if (Number.isFinite(parsed) && parsed > 0) {
+        return parsed;
+    }
+    if (input) {
+        input.value = TICK_CONFIG.tickValue.toFixed(TICK_CONFIG.decimals);
+    }
+    return TICK_CONFIG.tickValue;
+}
+
+// ----------------------------------------
+/**
+ * �w��ς̒l�ʂ���ł�����ݒu�v���r���[��쐬���܂��B
+ *
+ * @function buildPricePreview
+ * @param {number} startPrice - �J�n���i
+ * @param {number} step - �Ԋu�����l
+ * @param {number} size - ����
+ * @param {boolean} ascending - true �̏ꍇ�͖߁Afalse �̏ꍇ�͔g�ɕ\�����܂��B
+ * @returns {string} �v���r���[�\������e�L�X�g
+ */
+function buildPricePreview(startPrice, step, size, ascending) {
+    if (!Number.isFinite(startPrice) || !Number.isFinite(step)) {
+        return "―";
+    }
+    const safeSize = Math.max(1, Math.floor(size));
+    const arrow = ascending ? "↑" : "↓";
+    const direction = ascending ? 1 : -1;
+    const maxPreview = 2;
+    const values = [];
+
+    for (let i = 0; i < Math.min(safeSize, maxPreview); i += 1) {
+        const value = startPrice + direction * step * i;
+        values.push(value.toFixed(TICK_CONFIG.decimals));
+    }
+
+    if (safeSize > maxPreview) {
+        const last = startPrice + direction * step * (safeSize - 1);
+        values.push("…", last.toFixed(TICK_CONFIG.decimals));
+    }
+
+    return values.join(` ${arrow} `);
+}
+
+// ----------------------------------------
+/**
+ * �V�K���������̃L���v�V�����N�����g�p�ɍ��킹�A�^�C�}�[�I�[�o�[���Z�o���錾�����܂��B
+ *
+ * @function setupImmediateCalculator
+ * @returns {void}
+ */
+function setupImmediateCalculator() {
+    const startInput = document.getElementById("immediate__start_price");
+    const intervalInput = document.getElementById("immediate__interval");
+    const sizeInput = document.getElementById("immediate__size");
+    const previewLabel = document.getElementById("immediate__preview_label");
+    const previewText = document.getElementById("immediate__preview_text");
+    const previewBox = document.getElementById("immediate__preview_box");
+    const intervalUp = document.getElementById("immediate__interval_up");
+    const intervalDown = document.getElementById("immediate__interval_down");
+    const directionInputs = Array.from(document.querySelectorAll("input[name='immediate__direction']"));
+    const typeInputs = Array.from(document.querySelectorAll("input[name='immediate__type']"));
+    const sizeButtons = Array.from(document.querySelectorAll("[data-immediate-size-delta]"));
+
+    if (!startInput || !intervalInput || !sizeInput || !previewLabel || !previewText || !previewBox) {
+        return;
+    }
+
+    const ensureSize = () => {
+        const parsed = parseInt(sizeInput.value, 10);
+        if (Number.isFinite(parsed) && parsed > 0) {
+            return parsed;
+        }
+        sizeInput.value = "1";
+        return 1;
+    };
+
+    const applyPreviewTheme = (dir, type) => {
+        const themes = {
+            buy_limit: ["bg-gradient-to-b", "from-transparent", "to-rose-500/60", "text-white"],
+            buy_stop: ["bg-gradient-to-t", "from-transparent", "to-rose-500/60", "text-white"],
+            sell_limit: ["bg-gradient-to-t", "from-transparent", "to-blue-500/60", "text-white"],
+            sell_stop: ["bg-gradient-to-b", "from-transparent", "to-blue-500/60", "text-white"],
+        };
+        previewBox.className = "mt-3 rounded-xl bg-slate-950/70 p-3 shadow text-slate-100";
+        const key = `${dir}_${type}`;
+        if (themes[key]) {
+            previewBox.classList.add(...themes[key]);
+        }
+    };
+
+    const update = () => {
+        const baseInterval = normalizeInterval(intervalInput);
+        const size = ensureSize();
+        const directionInput = directionInputs.find((input) => input.checked);
+        const typeInput = typeInputs.find((input) => input.checked);
+        const dir = directionInput ? directionInput.value : "buy";
+        const type = typeInput ? typeInput.value : "limit";
+
+        const ascending = dir === "buy" ? type === "stop" : type === "limit";
+        const startPrice = parseFloat(startInput.value);
+
+        const preview = buildPricePreview(startPrice, baseInterval, size, ascending);
+        const label = `${dir === "buy" ? "買い" : "売り"}${type === "limit" ? "指値" : "逆指値"}`;
+
+        previewLabel.textContent = label;
+        previewText.textContent = preview;
+        applyPreviewTheme(dir, type);
+    };
+
+    const adjustInterval = (delta) => {
+        const current = normalizeInterval(intervalInput);
+        const next = Math.max(current + delta, TICK_CONFIG.tickValue);
+        intervalInput.value = next.toFixed(TICK_CONFIG.decimals);
+        update();
+    };
+
+    const adjustSize = (delta) => {
+        const current = ensureSize();
+        const next = Math.max(1, current + delta);
+        sizeInput.value = next.toString();
+        update();
+    };
+
+    [startInput, intervalInput, sizeInput, ...directionInputs, ...typeInputs].forEach((el) => {
+        el?.addEventListener("input", update);
+        el?.addEventListener("change", update);
+    });
+
+    intervalUp?.addEventListener("click", () => adjustInterval(TICK_CONFIG.tickValue));
+    intervalDown?.addEventListener("click", () => adjustInterval(-TICK_CONFIG.tickValue));
+    sizeButtons.forEach((btn) => {
+        btn?.addEventListener("click", () => {
+            const delta = parseInt(btn.dataset.immediateSizeDelta, 10);
+            if (Number.isFinite(delta)) {
+                adjustSize(delta);
+            }
+        });
+    });
+
+    update();
+}
+
 setupRowClick();
 startOrderBookPolling();
 setupCancelState();
 setupCloseState();
 setupCancelButton();
 setupCloseButton();
+setupImmediateCalculator();
