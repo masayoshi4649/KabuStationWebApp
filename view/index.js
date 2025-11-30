@@ -2,15 +2,15 @@ const ORDERBOOK_ENDPOINT = "/book";
 
 // ----------------------------------------
 /**
- * チェック状態に応じた基調色を算出する。
+ * チェック状態に応じた強調色を返します。
  *
- * ロング・ショートの選択有無を判定し、強調用の 16 進カラーコードを返す。
- * どちらも未選択の場合は背景リセット用に空文字を返す。
+ * ロング / ショートの選択状況から、表示に使う 16 進カラーコードを返します。
+ * どちらも未選択の場合は背景をリセットするために空文字を返します。
  *
  * @function determineSelectionColor
- * @param {boolean} isLongChecked - ロングが選択されているかどうか。
- * @param {boolean} isShortChecked - ショートが選択されているかどうか。
- * @returns {string} 選択状態に対応する 16 進カラーコード。未選択時は空文字を返します。
+ * @param {boolean} isLongChecked - 買建が選択されているか。
+ * @param {boolean} isShortChecked - 売建が選択されているか。
+ * @returns {string} 選択状態に応じた 16 進カラーコード。未選択時は空文字。
  */
 function determineSelectionColor(isLongChecked, isShortChecked) {
     if (isLongChecked && isShortChecked) {
@@ -27,15 +27,15 @@ function determineSelectionColor(isLongChecked, isShortChecked) {
 
 // ----------------------------------------
 /**
- * 指定した要素に市松模様の背景を適用する。
+ * 指定要素にチェック柄の背景を適用します。
  *
- * ベースカラーの上にグリッド状のオーバーレイを重ね、選択状態を視覚化する。
+ * ベースカラーの上に格子状のオーバーレイを重ね、選択状態を視覚的に示します。
  *
  * @function applyCheckerboardBackground
  * @param {HTMLElement} target - 背景を適用する対象要素。
- * @param {string} baseColor - ベースとなるカラーコード。空文字の場合は元の背景に戻す。
- * @param {number} angleDeg - チェック枠の回転角度（度）。
- * @param {boolean} shiftPattern - 斜めチェック枠の位置を半マスずらすかどうか。
+ * @param {string} baseColor - ベースとなるカラーコード。未指定の場合は背景をリセット。
+ * @param {number} angleDeg - パターンの角度（度数法）。
+ * @param {boolean} shiftPattern - 模様を半マスずらすかどうか。
  * @returns {void} 返り値はありません。
  */
 function applyCheckerboardBackground(target, baseColor, angleDeg = 0, shiftPattern = false) {
@@ -68,13 +68,13 @@ function applyCheckerboardBackground(target, baseColor, angleDeg = 0, shiftPatte
 
 // ----------------------------------------
 /**
- * 指定した要素にストライプ模様の背景を適用する。
+ * 指定要素にストライプ柄の背景を適用します。
  *
- * ベースカラーの上に垂直ストライプを重ね、選択状態を視覚的に分かりやすくする。
+ * ベースカラーの上に平行なストライプを重ね、選択状態を視覚的に示します。
  *
  * @function applyStripedBackground
  * @param {HTMLElement} target - 背景を適用する対象要素。
- * @param {string} baseColor - ベースとなるカラーコード。空文字の場合は元の背景に戻す。
+ * @param {string} baseColor - ベースとなるカラーコード。未指定の場合は背景をリセット。
  * @returns {void} 返り値はありません。
  */
 function applyStripedBackground(target, baseColor) {
@@ -102,19 +102,19 @@ function applyStripedBackground(target, baseColor) {
 
 // ----------------------------------------
 /**
- * 取得した板情報をテーブルへ描画する。
+ * 取得した板情報をテーブルへ描画します。
  *
- * 受け取った配列を 1 行ずつ組み立て、強調用のクラスや data 属性を付与する。
+ * 1 行を 1 tick として生成し、価格セルには data-price を付与します。
  *
  * @function renderOrderBook
- * @param {Array<Object>} data - API から取得した板データ配列。
+ * @param {Array<Object>} data - API から受け取った板データ配列。
  * @returns {void} 返り値はありません。
  */
 function renderOrderBook(data) {
     const tbody = document.getElementById("orderbook-body");
     tbody.innerHTML = "";
 
-    data.forEach(item => {
+    data.forEach((item) => {
         const tr = document.createElement("tr");
         tr.classList.add(
             "orderbook-row",
@@ -133,33 +133,33 @@ function renderOrderBook(data) {
         );
         tr.dataset.price = item.Price;
 
-        // 売数量セル
         const askTd = document.createElement("td");
         askTd.classList.add(
             "orderbook-ask",
             "px-3",
-            "py-2",
+            "py-1.5",
             "text-right",
-            "text-emerald-300",
+            "text-emerald-200",
             "font-semibold",
             "bg-emerald-500/5",
-            "first:rounded-l-2xl"
+            "first:rounded-l-2xl",
+            "leading-tight"
         );
         askTd.textContent = item.SellQty > 0 ? item.SellQty.toLocaleString() : "";
 
-        // 価格セル
         const priceTd = document.createElement("td");
         priceTd.classList.add(
             "orderbook-price",
             "px-3",
-            "py-2",
+            "py-1.5",
             "text-center",
             "font-semibold",
             "text-slate-100",
             "tracking-tight",
-            "bg-slate-800/60"
+            "bg-slate-800/60",
+            "leading-tight"
         );
-        priceTd.textContent = item.Price.toFixed(2);
+        priceTd.textContent = Number.isFinite(item.Price) ? item.Price.toFixed(TICK_CONFIG.decimals) : "--";
 
         if (item.Current) {
             priceTd.classList.add(
@@ -175,17 +175,17 @@ function renderOrderBook(data) {
             );
         }
 
-        // 買数量セル
         const bidTd = document.createElement("td");
         bidTd.classList.add(
             "orderbook-bid",
             "px-3",
-            "py-2",
+            "py-1.5",
             "text-left",
-            "text-rose-300",
+            "text-rose-200",
             "font-semibold",
             "bg-rose-500/5",
-            "last:rounded-r-2xl"
+            "last:rounded-r-2xl",
+            "leading-tight"
         );
         bidTd.textContent = item.BuyQty > 0 ? item.BuyQty.toLocaleString() : "";
 
@@ -199,7 +199,7 @@ function renderOrderBook(data) {
 
 // ----------------------------------------
 /**
- * テーブル行のクリックイベントを設定し、選択価格をログへ出力する。
+ * テーブル行のクリックイベントを設定し、開始価格へ反映します。
  *
  * @function setupRowClick
  * @returns {void} 返り値はありません。
@@ -209,7 +209,9 @@ function setupRowClick() {
     const startInput = document.getElementById("immediate__start_price");
     tbody.addEventListener("click", (event) => {
         const tr = event.target.closest("tr.orderbook-row");
-        if (!tr) return;
+        if (!tr) {
+            return;
+        }
         const price = parseFloat(tr.dataset.price);
         if (!Number.isFinite(price)) {
             return;
@@ -223,10 +225,10 @@ function setupRowClick() {
 
 // ----------------------------------------
 /**
- * 板情報を API から取得し、描画する。
+ * 板情報を API から取得し、描画します。
  *
  * @function fetchOrderBook
- * @returns {Promise<void>} 描画完了までの Promise。通信に失敗した場合はエラーを出力する。
+ * @returns {Promise<void>} 描画完了までの Promise。
  */
 async function fetchOrderBook() {
     try {
@@ -239,7 +241,7 @@ async function fetchOrderBook() {
 
 // ----------------------------------------
 /**
- * 板情報の取得を開始し、1 秒間隔でポーリングする。
+ * 板情報の定期取得を開始します。
  *
  * @function startOrderBookPolling
  * @returns {void} 返り値はありません。
@@ -251,23 +253,23 @@ function startOrderBookPolling() {
 
 // ----------------------------------------
 /**
- * 注文取消カードの背景をチェック状態に応じて更新する。
+ * 注文取消カードの背景更新を設定します。
  *
  * @function setupCancelState
  * @returns {void} 返り値はありません。
  */
 function setupCancelState() {
-    const cancelContainer = document.getElementById("cancel");
+    const cancelSurface = document.getElementById("cancel__selection_surface");
     const cancelLong = document.getElementById("cancel__long");
     const cancelShort = document.getElementById("cancel__short");
 
-    if (!cancelContainer || !cancelLong || !cancelShort) {
+    if (!cancelSurface || !cancelLong || !cancelShort) {
         return;
     }
 
     const updateBackground = () => {
         const backgroundColor = determineSelectionColor(cancelLong.checked, cancelShort.checked);
-        applyStripedBackground(cancelContainer, backgroundColor);
+        applyStripedBackground(cancelSurface, backgroundColor);
     };
 
     cancelLong.addEventListener("change", updateBackground);
@@ -277,11 +279,11 @@ function setupCancelState() {
 
 // ----------------------------------------
 /**
- * 注文取消ボタンの送信処理をセットアップする。
+ * 注文取消ボタンの送信処理を設定します。
  *
- * - 現在のチェック状態をペイロードとして /order/cancel へ送信する。
- * - 送信後にチェック状態と背景をリセットする。
- * - 結果に応じてトーストを表示する。
+ * - 現在のチェック状態を payload として /order/cancel へ送信します。
+ * - 送信後はチェックをクリアし、背景も更新します。
+ * - 結果に応じてトースト通知を表示します。
  *
  * @function setupCancelButton
  * @returns {void} 返り値はありません。
@@ -298,7 +300,7 @@ function setupCancelButton() {
     cancelButton.addEventListener("click", async () => {
         const payload = {
             long: cancelLong.checked,
-            short: cancelShort.checked
+            short: cancelShort.checked,
         };
 
         cancelLong.checked = false;
@@ -310,20 +312,20 @@ function setupCancelButton() {
             const response = await axios.post("/order/cancel", payload);
             if (response.status === 200) {
                 iziToast.success({
-                    title: "注文取消",
-                    message: "送信が完了しました",
+                    title: "成功",
+                    message: "取消リクエストを送信しました",
                 });
             } else {
                 iziToast.error({
-                    title: "注文取消",
-                    message: "送信が失敗しました",
+                    title: "失敗",
+                    message: "取消リクエストを送信できませんでした",
                 });
             }
         } catch (error) {
             console.error("注文取消の送信に失敗しました", error);
             iziToast.error({
-                title: "注文取消",
-                message: "送信が失敗しました",
+                title: "失敗",
+                message: "取消リクエストを送信できませんでした",
             });
         }
     });
@@ -331,18 +333,18 @@ function setupCancelButton() {
 
 // ----------------------------------------
 /**
- * 建玉返済カードの背景をチェック状態に応じて更新する。
+ * 建玉返済カードの背景更新を設定します。
  *
  * @function setupCloseState
  * @returns {void} 返り値はありません。
  */
 function setupCloseState() {
-    const closeContainer = document.getElementById("close");
+    const closeSurface = document.getElementById("close__selection_surface");
     const closeLong = document.getElementById("close__long");
     const closeShort = document.getElementById("close__short");
     const closeOnlyProfit = document.getElementById("close__only_profit");
 
-    if (!closeContainer || !closeLong || !closeShort || !closeOnlyProfit) {
+    if (!closeSurface || !closeLong || !closeShort || !closeOnlyProfit) {
         return;
     }
 
@@ -352,7 +354,7 @@ function setupCloseState() {
         const angleDeg = hasProfitOnly ? 45 : 0;
         const shiftPattern = false;
 
-        applyCheckerboardBackground(closeContainer, baseColor, angleDeg, shiftPattern);
+        applyCheckerboardBackground(closeSurface, baseColor, angleDeg, shiftPattern);
     };
 
     closeOnlyProfit.addEventListener("change", updateBackground);
@@ -363,11 +365,11 @@ function setupCloseState() {
 
 // ----------------------------------------
 /**
- * 取引終了の送信処理を設定します。
+ * 建玉返済ボタンの送信処理を設定します。
  *
- * - close ブロックの long/short/only_profit を /order/close へ送信します。
- * - 送信後にチェック状態を初期化し、背景更新用の change イベントを発火させます。
- * - 成否に応じてトーストで結果を知らせます。
+ * - long/short/only_profit を payload にまとめ、/order/close へ送信します。
+ * - 送信後はサイドをリセットし、含み益のみをオンに戻します。
+ * - トーストで結果を通知します。
  *
  * @function setupCloseButton
  * @returns {void} 返り値はありません。
@@ -386,7 +388,7 @@ function setupCloseButton() {
         const payload = {
             long: closeLong.checked,
             short: closeShort.checked,
-            only_profit: closeOnlyProfit.checked
+            only_profit: closeOnlyProfit.checked,
         };
 
         closeLong.checked = false;
@@ -401,19 +403,19 @@ function setupCloseButton() {
             if (response.status === 200) {
                 iziToast.success({
                     title: "成功",
-                    message: "送信に成功しました",
+                    message: "返済リクエストを送信しました",
                 });
             } else {
                 iziToast.error({
                     title: "失敗",
-                    message: "送信に失敗しました",
+                    message: "返済リクエストを送信できませんでした",
                 });
             }
         } catch (error) {
-            console.error("建玉決済ボタンの送信に失敗しました", error);
+            console.error("建玉返済の送信に失敗しました", error);
             iziToast.error({
                 title: "失敗",
-                message: "送信に失敗しました",
+                message: "返済リクエストを送信できませんでした",
             });
         }
     });
@@ -421,16 +423,16 @@ function setupCloseButton() {
 
 // ----------------------------------------
 /**
- * 1tick �̒l��ǂݍ���A�\�����ݒ肷��΃R���g���[����Ԃ��܂��B
+ * 1 tick あたりの値幅と小数点桁数を取得します。
  *
  * @function getTickConfig
- * @returns {{tickValue: number, decimals: number}} 1tick�̒l�����x�����i�֖߂��܂��B
+ * @returns {{tickValue: number, decimals: number}} 1 tick の値幅と小数点桁数。
  */
 function getTickConfig() {
     const tickRaw = document.body?.dataset?.onetick;
     const parsed = parseFloat(tickRaw);
     const tickValue = Number.isFinite(parsed) && parsed > 0 ? parsed : 0.25;
-    const decimals = 2;
+    const decimals = tickValue < 1 ? Math.max(2, `${tickValue}`.split(".")[1]?.length || 2) : 2;
     return { tickValue, decimals };
 }
 
@@ -438,11 +440,11 @@ const TICK_CONFIG = getTickConfig();
 
 // ----------------------------------------
 /**
- * ���͒l���w�����ϐ��f�[�^��A��ʂ�����ꍇ�� 1tick �̒l�ɖ߂��܂��B
+ * 入力値を検証し、1 tick 単位で正規化します。
  *
  * @function normalizeInterval
- * @param {HTMLInputElement} input - �Ԋu�̓��̓v�[���_�E��
- * @returns {number} �R�}���h�p�̃l�B
+ * @param {HTMLInputElement} input - 間隔入力フィールド。
+ * @returns {number} コマンドで扱う正規化済みの数値。
  */
 function normalizeInterval(input) {
     const parsed = parseFloat(input?.value);
@@ -457,18 +459,18 @@ function normalizeInterval(input) {
 
 // ----------------------------------------
 /**
- * �w��ς̒l�ʂ���ł�����ݒu�v���r���[��쐬���܂��B
+ * 指定条件に基づき、プレビュー表示用の文字列を作成します。
  *
  * @function buildPricePreview
- * @param {number} startPrice - �J�n���i
- * @param {number} step - �Ԋu�����l
- * @param {number} size - ����
- * @param {boolean} ascending - true �̏ꍇ�͖߁Afalse �̏ꍇ�͔g�ɕ\�����܂��B
- * @returns {string} �v���r���[�\������e�L�X�g
+ * @param {number} startPrice - 開始価格。
+ * @param {number} step - 間隔。
+ * @param {number} size - 件数。
+ * @param {boolean} ascending - true の場合は昇順、false の場合は降順。
+ * @returns {string} プレビューに表示するテキスト。
  */
 function buildPricePreview(startPrice, step, size, ascending) {
     if (!Number.isFinite(startPrice) || !Number.isFinite(step)) {
-        return "―";
+        return "--";
     }
     const safeSize = Math.max(1, Math.floor(size));
     const arrow = ascending ? "↑" : "↓";
@@ -491,7 +493,7 @@ function buildPricePreview(startPrice, step, size, ascending) {
 
 // ----------------------------------------
 /**
- * �V�K���������̃L���v�V�����N�����g�p�ɍ��킹�A�^�C�}�[�I�[�o�[���Z�o���錾�����܂��B
+ * 即時注文の計算・プレビュー更新・送信補助を設定します。
  *
  * @function setupImmediateCalculator
  * @returns {void}
@@ -508,10 +510,30 @@ function setupImmediateCalculator() {
     const directionInputs = Array.from(document.querySelectorAll("input[name='immediate__direction']"));
     const typeInputs = Array.from(document.querySelectorAll("input[name='immediate__type']"));
     const sizeButtons = Array.from(document.querySelectorAll("[data-immediate-size-delta]"));
+    const startButtons = Array.from(document.querySelectorAll("[data-immediate-start-step]"));
 
     if (!startInput || !intervalInput || !sizeInput || !previewLabel || !previewText || !previewBox) {
         return;
     }
+
+    const ensureStartPrice = () => {
+        const parsed = parseFloat(startInput.value);
+        if (Number.isFinite(parsed)) {
+            return parsed;
+        }
+        const fallback = parseFloat(document.body?.dataset?.current);
+        const validFallback = Number.isFinite(fallback) ? fallback : TICK_CONFIG.tickValue;
+        startInput.value = validFallback.toFixed(TICK_CONFIG.decimals);
+        return validFallback;
+    };
+
+    const formatTickDelta = (tickSteps) => {
+        const value = tickSteps * TICK_CONFIG.tickValue;
+        const fixed = value.toFixed(TICK_CONFIG.decimals);
+        const numeric = Number.isFinite(Number(fixed)) ? Number(fixed) : 0;
+        const sign = numeric >= 0 ? "+" : "";
+        return `${sign}${numeric.toString()}`;
+    };
 
     const ensureSize = () => {
         const parsed = parseInt(sizeInput.value, 10);
@@ -524,12 +546,12 @@ function setupImmediateCalculator() {
 
     const applyPreviewTheme = (dir, type) => {
         const themes = {
-            buy_limit: ["bg-gradient-to-b", "from-transparent", "to-rose-500/60", "text-white"],
-            buy_stop: ["bg-gradient-to-t", "from-transparent", "to-rose-500/60", "text-white"],
-            sell_limit: ["bg-gradient-to-t", "from-transparent", "to-blue-500/60", "text-white"],
-            sell_stop: ["bg-gradient-to-b", "from-transparent", "to-blue-500/60", "text-white"],
+            buy_limit: ["bg-gradient-to-b", "from-transparent", "to-rose-500/40", "text-white"],
+            buy_stop: ["bg-gradient-to-t", "from-transparent", "to-rose-500/40", "text-white"],
+            sell_limit: ["bg-gradient-to-t", "from-transparent", "to-blue-500/40", "text-white"],
+            sell_stop: ["bg-gradient-to-b", "from-transparent", "to-blue-500/40", "text-white"],
         };
-        previewBox.className = "mt-3 rounded-xl bg-slate-950/70 p-3 shadow text-slate-100";
+        previewBox.className = "mt-3 rounded-xl bg-slate-950/70 p-3 text-slate-100 shadow";
         const key = `${dir}_${type}`;
         if (themes[key]) {
             previewBox.classList.add(...themes[key]);
@@ -545,7 +567,7 @@ function setupImmediateCalculator() {
         const type = typeInput ? typeInput.value : "limit";
 
         const ascending = dir === "buy" ? type === "stop" : type === "limit";
-        const startPrice = parseFloat(startInput.value);
+        const startPrice = ensureStartPrice();
 
         const preview = buildPricePreview(startPrice, baseInterval, size, ascending);
         const label = `${dir === "buy" ? "買い" : "売り"}${type === "limit" ? "指値" : "逆指値"}`;
@@ -569,6 +591,23 @@ function setupImmediateCalculator() {
         update();
     };
 
+    const adjustStartPrice = (tickSteps) => {
+        const base = ensureStartPrice();
+        const next = base + tickSteps * TICK_CONFIG.tickValue;
+        startInput.value = next.toFixed(TICK_CONFIG.decimals);
+        update();
+    };
+
+    const applyStartButtonLabels = () => {
+        startButtons.forEach((btn) => {
+            const tickSteps = parseInt(btn.dataset.immediateStartStep, 10);
+            if (!Number.isFinite(tickSteps)) {
+                return;
+            }
+            btn.textContent = formatTickDelta(tickSteps);
+        });
+    };
+
     [startInput, intervalInput, sizeInput, ...directionInputs, ...typeInputs].forEach((el) => {
         el?.addEventListener("input", update);
         el?.addEventListener("change", update);
@@ -576,6 +615,13 @@ function setupImmediateCalculator() {
 
     intervalUp?.addEventListener("click", () => adjustInterval(TICK_CONFIG.tickValue));
     intervalDown?.addEventListener("click", () => adjustInterval(-TICK_CONFIG.tickValue));
+    startButtons.forEach((btn) => {
+        const tickSteps = parseInt(btn.dataset.immediateStartStep, 10);
+        if (!Number.isFinite(tickSteps)) {
+            return;
+        }
+        btn.addEventListener("click", () => adjustStartPrice(tickSteps));
+    });
     sizeButtons.forEach((btn) => {
         btn?.addEventListener("click", () => {
             const delta = parseInt(btn.dataset.immediateSizeDelta, 10);
@@ -585,6 +631,7 @@ function setupImmediateCalculator() {
         });
     });
 
+    applyStartButtonLabels();
     update();
 }
 

@@ -1,1 +1,1 @@
-go run . -c .\app.toml
+﻿go run . -c .\app.toml

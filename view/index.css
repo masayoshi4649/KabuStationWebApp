@@ -21,18 +21,52 @@ button {
 
 @media (min-width: 1100px) {
     .layout-panels {
-        grid-template-columns: minmax(340px, 420px) 1fr;
+        grid-template-columns: minmax(240px, 300px) 1fr;
     }
 }
 
 @media (min-width: 1400px) {
     .layout-panels {
-        grid-template-columns: minmax(360px, 440px) 1fr;
+        grid-template-columns: minmax(260px, 320px) 1fr;
         gap: 1.75rem;
     }
 }
 
 .orderbook-panel {
     width: 100%;
-    min-width: 320px;
+    min-width: 240px;
+}
+
+.orderbook-table {
+    border-spacing: 0 6px;
+}
+
+.orderbook-table th,
+.orderbook-table td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.orderbook-row {
+    min-height: 34px;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 880px) {
+    .action-grid {
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+        align-items: stretch;
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .action-grid {
+        max-width: 1040px;
+    }
 }
