@@ -65,11 +65,22 @@ button {
     }
 }
 
+.action-columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+}
+
+.action-columns__side {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+}
+
 #open {
     width: 100%;
-    max-width: 450px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 #open .open__top-grid {
@@ -90,6 +101,18 @@ button {
     width: 100%;
     max-width: 250px;
     padding: 0.75rem;
+}
+
+@media (min-width: 1100px) {
+    .action-columns {
+        grid-template-columns: minmax(440px, 1.7fr) minmax(240px, 1fr);
+    }
+
+    #cancel,
+    #close {
+        width: 100%;
+        max-width: 320px;
+    }
 }
 
 @media (min-width: 1280px) {
