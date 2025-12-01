@@ -99,7 +99,7 @@ button {
 
 #open .open-area--b {
     width: 100%;
-    max-width: 250px;
+    max-width: none;
     padding: 0.75rem;
 }
 
@@ -122,18 +122,42 @@ button {
 }
 
 @media (min-width: 640px) {
+    #open {
+        --open-area-a-width: 140px;
+        --open-area-b-width: 180px;
+        --open-area-gap: 0.75rem;
+        --open-area-total: calc(var(--open-area-a-width) + var(--open-area-b-width) + var(--open-area-gap));
+        --open-shell-padding: 0.75rem;
+        --open-shell-width: calc(var(--open-area-total) + (var(--open-shell-padding) * 2));
+        width: var(--open-shell-width);
+        max-width: var(--open-shell-width);
+        padding-left: var(--open-shell-padding);
+        padding-right: var(--open-shell-padding);
+        justify-self: start;
+    }
+
     #open .open__top-grid {
-        grid-template-columns: 140px 250px;
-        justify-content: flex-start;
+        grid-template-columns: var(--open-area-a-width) var(--open-area-b-width);
+        gap: var(--open-area-gap);
+        justify-content: start;
         align-items: start;
+        width: var(--open-area-total);
     }
 
     #open .open-area--a {
-        width: 140px;
+        width: var(--open-area-a-width);
+        max-width: var(--open-area-a-width);
     }
 
     #open .open-area--b {
-        width: 250px;
+        width: var(--open-area-b-width);
+        max-width: var(--open-area-b-width);
+    }
+
+    #open .open__bottom {
+        width: var(--open-area-total);
+        max-width: var(--open-area-total);
+        align-self: flex-start;
     }
 }
 
