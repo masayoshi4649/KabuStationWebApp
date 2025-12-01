@@ -105,13 +105,25 @@ button {
 
 @media (min-width: 1100px) {
     .action-columns {
-        grid-template-columns: minmax(440px, 1.7fr) minmax(240px, 1fr);
+        --action-main-width: 356px;
+        --action-side-width: 279px;
+        --action-gap: 8px;
+        grid-template-columns: var(--action-main-width) var(--action-side-width);
+        gap: var(--action-gap);
+        width: calc(var(--action-main-width) + var(--action-side-width) + var(--action-gap));
+        max-width: calc(var(--action-main-width) + var(--action-side-width) + var(--action-gap));
+        justify-self: start;
+    }
+
+    #open {
+        width: var(--action-main-width);
+        max-width: var(--action-main-width);
     }
 
     #cancel,
     #close {
-        width: 100%;
-        max-width: 320px;
+        width: var(--action-side-width);
+        max-width: var(--action-side-width);
     }
 }
 
