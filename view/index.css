@@ -136,3 +136,47 @@ button {
         width: 250px;
     }
 }
+
+.cancel-toggle {
+    transition: background 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.cancel-toggle--long:has(input:checked) {
+    background: linear-gradient(90deg, #68101c 0%, #b91c1c 52%, #ef4444 100%);
+    border-color: #ef4444;
+    box-shadow: 0 14px 30px rgba(127, 29, 29, 0.38);
+}
+
+.cancel-toggle--short:has(input:checked) {
+    background: linear-gradient(90deg, #0e1835 0%, #1d4ed8 52%, #3b82f6 100%);
+    border-color: #3b82f6;
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+}
+
+.close-toggle {
+    transition: background 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.close-toggle--long:has(input:checked) {
+    background: linear-gradient(90deg, #68101c 0%, #b91c1c 52%, #ef4444 100%);
+    border-color: #ef4444;
+    box-shadow: 0 14px 30px rgba(127, 29, 29, 0.38);
+}
+
+.close-toggle--short:has(input:checked) {
+    background: linear-gradient(90deg, #0e1835 0%, #1d4ed8 52%, #3b82f6 100%);
+    border-color: #3b82f6;
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+}
+
+#close:has(#close__only_profit:checked) .close-toggle--long:has(input:checked) {
+    background: linear-gradient(90deg, #68101c 0%, #3a0a0f 55%, #000000 100%);
+    border-color: #68101c;
+    box-shadow: 0 14px 30px rgba(38, 5, 10, 0.45);
+}
+
+#close:has(#close__only_profit:checked) .close-toggle--short:has(input:checked) {
+    background: linear-gradient(90deg, #0e1835 0%, #162750 55%, #000000 100%);
+    border-color: #0e1835;
+    box-shadow: 0 14px 30px rgba(12, 17, 34, 0.45);
+}
