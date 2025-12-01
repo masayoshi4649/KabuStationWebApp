@@ -1,5 +1,14 @@
 :root {
     color-scheme: dark;
+    --open-area-a-width: 140px;
+    --open-area-b-width: 180px;
+    --open-area-gap: 0.75rem;
+    --open-area-total: calc(var(--open-area-a-width) + var(--open-area-b-width) + var(--open-area-gap));
+    --open-shell-padding: 0.75rem;
+    --open-shell-width: calc(var(--open-area-total) + (var(--open-shell-padding) * 2));
+    --action-main-width: 356px;
+    --action-side-width: 279px;
+    --action-gap: 8px;
 }
 
 body {
@@ -105,9 +114,6 @@ button {
 
 @media (min-width: 1100px) {
     .action-columns {
-        --action-main-width: 356px;
-        --action-side-width: 279px;
-        --action-gap: 8px;
         grid-template-columns: var(--action-main-width) var(--action-side-width);
         gap: var(--action-gap);
         width: calc(var(--action-main-width) + var(--action-side-width) + var(--action-gap));
@@ -133,14 +139,54 @@ button {
     }
 }
 
+@media (max-width: 639px) {
+    .action-columns {
+        width: var(--open-shell-width);
+        max-width: var(--open-shell-width);
+        justify-self: start;
+    }
+
+    #open {
+        width: var(--open-shell-width);
+        max-width: var(--open-shell-width);
+        padding-left: var(--open-shell-padding);
+        padding-right: var(--open-shell-padding);
+        justify-self: start;
+    }
+
+    #open .open__top-grid {
+        grid-template-columns: var(--open-area-a-width) var(--open-area-b-width);
+        gap: var(--open-area-gap);
+        justify-content: start;
+        align-items: start;
+        width: var(--open-area-total);
+    }
+
+    #open .open-area--a {
+        width: var(--open-area-a-width);
+        max-width: var(--open-area-a-width);
+    }
+
+    #open .open-area--b {
+        width: var(--open-area-b-width);
+        max-width: var(--open-area-b-width);
+    }
+
+    #open .open__bottom {
+        width: var(--open-area-total);
+        max-width: var(--open-area-total);
+        align-self: flex-start;
+    }
+
+    #cancel,
+    #close {
+        width: var(--action-side-width);
+        max-width: var(--action-side-width);
+    }
+}
+
 @media (min-width: 640px) {
     #open {
-        --open-area-a-width: 140px;
-        --open-area-b-width: 180px;
-        --open-area-gap: 0.75rem;
-        --open-area-total: calc(var(--open-area-a-width) + var(--open-area-b-width) + var(--open-area-gap));
-        --open-shell-padding: 0.75rem;
-        --open-shell-width: calc(var(--open-area-total) + (var(--open-shell-padding) * 2));
         width: var(--open-shell-width);
         max-width: var(--open-shell-width);
         padding-left: var(--open-shell-padding);
