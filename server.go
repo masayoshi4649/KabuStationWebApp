@@ -52,6 +52,7 @@ func registerHTTPRoutes(rt *gin.Engine) {
 
 	rt.POST("/order/cancel", handleOrderCancelPOST)
 	rt.POST("/order/close", handleOrderClosePOST)
+	rt.POST("/order/open", handleOrderOpenPOST)
 
 }
 
@@ -104,6 +105,14 @@ type ReqOrderClosePOST struct {
 	Long       bool `json:"long"`
 	Short      bool `json:"short"`
 	OnlyProfit bool `json:"only_profit"`
+}
+
+type ReqOrderOpenPOST struct {
+	Direction  string  `json:"direction"`
+	OrderType  string  `json:"type"`
+	StartPrice float64 `json:"start_price"`
+	Interval   float64 `json:"interval"`
+	Size       int     `json:"size"`
 }
 
 // handleOrderCancelPOST は、注文取消用の JSON ペイロードを受信し、現在の注文情報を取得した上で取消処理を実行します。
@@ -246,5 +255,38 @@ func handleOrderClosePOST(c *gin.Context) {
 	}
 
 	log.Printf("handleOrderClosePOST long=%t short=%t only_profit=%t\n", req.Long, req.Short, req.OnlyProfit)
+	c.Status(http.StatusOK)
+}
+
+// handleOrderOpenPOST は、即時注文フォームの内容を JSON で受け取り、ログへ記録するハンドラーです。
+//
+// 主な特徴:
+//   - direction/type/start_price/interval/size の値を ShouldBindJSON でバインドする
+//   - バインドに失敗した場合は 400 を返し、エラー内容をログ出力する
+//   - 本実装では受信した値の記録のみを行い、実際の発注処理は行わない
+//
+// 引数と型:
+//   - c *gin.Context: HTTP サーバーのコンテキスト
+//
+// 返り値と型:
+//   - なし
+func handleOrderOpenPOST(c *gin.Context) {
+	var req ReqOrderOpenPOST
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Println("handleOrderOpenPOST ペイロードの読込に失敗", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "リクエストボディの形式が正しくありません",
+		})
+		return
+	}
+
+	log.Printf(
+		"handleOrderOpenPOST direction=%s type=%s start_price=%.4f interval=%.4f size=%d\n",
+		req.Direction,
+		req.OrderType,
+		req.StartPrice,
+		req.Interval,
+		req.Size,
+	)
 	c.Status(http.StatusOK)
 }

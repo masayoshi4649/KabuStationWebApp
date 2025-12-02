@@ -635,10 +635,94 @@ function setupImmediateCalculator() {
     update();
 }
 
+// ----------------------------------------
+/**
+ * 即時注文の発注ボタンから入力値を集約し、API へ送信します。
+ *
+ * - direction/type/start_price/interval/size を payload にまとめ、/order/open へ送信します。
+ * - 数値が不正な場合はフォールバック値を用いて安全側に補正します。
+ * - 成否に応じてトーストで通知します。
+ *
+ * @function setupOpenButton
+ * @returns {void} 返り値はありません。
+ */
+function setupOpenButton() {
+    const openButton = document.getElementById("open__btn");
+    const startInput = document.getElementById("immediate__start_price");
+    const intervalInput = document.getElementById("immediate__interval");
+    const sizeInput = document.getElementById("immediate__size");
+    const directionInputs = Array.from(document.querySelectorAll("input[name='immediate__direction']"));
+    const typeInputs = Array.from(document.querySelectorAll("input[name='immediate__type']"));
+
+    if (!openButton || !startInput || !intervalInput || !sizeInput) {
+        return;
+    }
+
+    const resolveDirection = () => {
+        const selected = directionInputs.find((input) => input?.checked);
+        return selected ? selected.value : "buy";
+    };
+
+    const resolveType = () => {
+        const selected = typeInputs.find((input) => input?.checked);
+        return selected ? selected.value : "limit";
+    };
+
+    const parseNumber = (value, fallback) => {
+        const parsed = parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : fallback;
+    };
+
+    const parseSize = (value, fallback) => {
+        const parsed = parseInt(value, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+    };
+
+    openButton.addEventListener("click", async () => {
+        const fallbackPrice = parseFloat(document.body?.dataset?.current);
+        const safeStartPrice = parseNumber(
+            startInput.value,
+            Number.isFinite(fallbackPrice) ? fallbackPrice : TICK_CONFIG.tickValue
+        );
+        const safeInterval = parseNumber(intervalInput.value, TICK_CONFIG.tickValue);
+        const safeSize = parseSize(sizeInput.value, 1);
+
+        const payload = {
+            direction: resolveDirection(),
+            type: resolveType(),
+            start_price: safeStartPrice,
+            interval: safeInterval,
+            size: safeSize,
+        };
+
+        try {
+            const response = await axios.post("/order/open", payload);
+            if (response.status === 200) {
+                iziToast.success({
+                    title: "完了",
+                    message: "発注リクエストを送信しました",
+                });
+            } else {
+                iziToast.error({
+                    title: "失敗",
+                    message: "発注リクエストの送信に失敗しました",
+                });
+            }
+        } catch (error) {
+            console.error("即時注文の送信に失敗しました", error);
+            iziToast.error({
+                title: "失敗",
+                message: "発注リクエストの送信に失敗しました",
+            });
+        }
+    });
+}
+
 setupRowClick();
 startOrderBookPolling();
 setupCancelState();
 setupCloseState();
 setupCancelButton();
 setupCloseButton();
+setupOpenButton();
 setupImmediateCalculator();
