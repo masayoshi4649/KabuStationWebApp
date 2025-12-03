@@ -291,15 +291,41 @@ func handleOrderOpenPOST(c *gin.Context) {
 		req.Qty,
 	)
 
+	step := req.Interval
+	if step <= 0 {
+		log.Println("handleOrderOpenPOST interval が不正", step)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "interval が 0 以下です",
+		})
+		return
+	}
+
+	qty := req.Qty
+	if qty < 1 {
+		log.Println("handleOrderOpenPOST qty が不正", qty)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "qty は 1 以上を指定してください",
+		})
+		return
+	}
+
 	switch req.Side {
 	// 売
 	case "1":
 		switch req.FrontOrderType {
 		case 20: // 指値
-			log.Printf("価格プレビュー")
+			prices := make([]float64, qty)
+			for i := range qty {
+				prices[i] = req.StartPrice + step*float64(i)
+			}
+			log.Printf("価格プレビュー(売り・指値): %v", prices)
 
 		case 30: // 逆指値
-			log.Printf("価格プレビュー")
+			prices := make([]float64, qty)
+			for i := range qty {
+				prices[i] = req.StartPrice - step*float64(i)
+			}
+			log.Printf("価格プレビュー(売り・逆指値): %v", prices)
 
 		}
 
@@ -307,10 +333,18 @@ func handleOrderOpenPOST(c *gin.Context) {
 	case "2":
 		switch req.FrontOrderType {
 		case 20: // 指値
-			log.Printf("価格プレビュー")
+			prices := make([]float64, qty)
+			for i := range qty {
+				prices[i] = req.StartPrice - step*float64(i)
+			}
+			log.Printf("価格プレビュー(買い・指値): %v", prices)
 
 		case 30: // 逆指値
-			log.Printf("価格プレビュー")
+			prices := make([]float64, qty)
+			for i := range qty {
+				prices[i] = req.StartPrice + step*float64(i)
+			}
+			log.Printf("価格プレビュー(買い・逆指値): %v", prices)
 
 		}
 	}
