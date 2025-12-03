@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	kabusapi "github.com/masayoshi4649/KabuStationAPI"
+	"github.com/masayoshi4649/KabuStationWebApp/kabusapi"
 )
 
 // runHTTPServer は、Gin を利用した HTTP サーバーを起動するエントリーポイントです。
@@ -291,6 +292,7 @@ func handleOrderOpenPOST(c *gin.Context) {
 		req.Qty,
 	)
 
+	// 異常値チェック
 	step := req.Interval
 	if step <= 0 {
 		log.Println("handleOrderOpenPOST interval が不正", step)
@@ -299,7 +301,6 @@ func handleOrderOpenPOST(c *gin.Context) {
 		})
 		return
 	}
-
 	qty := req.Qty
 	if qty < 1 {
 		log.Println("handleOrderOpenPOST qty が不正", qty)
@@ -319,6 +320,25 @@ func handleOrderOpenPOST(c *gin.Context) {
 				prices[i] = req.StartPrice + step*float64(i)
 			}
 			log.Printf("価格プレビュー(売り・指値): %v", prices)
+			go func(prices []float64) {
+				for _, p := range prices {
+					code, res, err := kabusapi.PostOrderSendorderFuture(kabusapi.ReqPostOrderSendorderFuture{
+						Symbol:         codeSymbol,
+						Exchange:       cfg.Trade.Exchange,
+						TradeType:      1,
+						TimeInForce:    1,
+						Side:           "1",
+						Qty:            1,
+						FrontOrderType: 20,
+						Price:          p,
+						ExpireDay:      0,
+					})
+
+					log.Println(code, res, err)
+
+					time.Sleep(500 * time.Millisecond)
+				}
+			}(prices)
 
 		case 30: // 逆指値
 			prices := make([]float64, qty)

@@ -8,7 +8,7 @@ import (
 	"os"
 	"sync"
 
-	kabusapi "github.com/masayoshi4649/KabuStationAPI"
+	"github.com/masayoshi4649/KabuStationWebApp/kabusapi"
 	"github.com/pelletier/go-toml/v2"
 )
 
