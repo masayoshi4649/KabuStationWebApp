@@ -639,7 +639,9 @@ function setupImmediateCalculator() {
 /**
  * 即時注文の発注ボタンから入力値を集約し、API へ送信します。
  *
- * - direction/type/start_price/interval/size を payload にまとめ、/order/open へ送信します。
+ * - side/front_order_type/start_price/interval/qty を payload にまとめ、/order/open へ送信します。
+ * - side は売り/買いの別を表し、"1" が売、"2" が買となります。
+ * - front_order_type は注文種別を表し、指値は 20、逆指値は 30 となります。
  * - 数値が不正な場合はフォールバック値を用いて安全側に補正します。
  * - 成否に応じてトーストで通知します。
  *
@@ -658,14 +660,17 @@ function setupOpenButton() {
         return;
     }
 
-    const resolveDirection = () => {
+    const resolveSide = () => {
         const selected = directionInputs.find((input) => input?.checked);
-        return selected ? selected.value : "buy";
+        if (selected?.value === "sell") {
+            return "1";
+        }
+        return "2";
     };
 
-    const resolveType = () => {
+    const resolveFrontOrderType = () => {
         const selected = typeInputs.find((input) => input?.checked);
-        return selected ? selected.value : "limit";
+        return selected?.value === "stop" ? 30 : 20;
     };
 
     const parseNumber = (value, fallback) => {
@@ -673,7 +678,7 @@ function setupOpenButton() {
         return Number.isFinite(parsed) ? parsed : fallback;
     };
 
-    const parseSize = (value, fallback) => {
+    const parseQty = (value, fallback) => {
         const parsed = parseInt(value, 10);
         return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
     };
@@ -685,14 +690,14 @@ function setupOpenButton() {
             Number.isFinite(fallbackPrice) ? fallbackPrice : TICK_CONFIG.tickValue
         );
         const safeInterval = parseNumber(intervalInput.value, TICK_CONFIG.tickValue);
-        const safeSize = parseSize(sizeInput.value, 1);
+        const safeQty = parseQty(sizeInput.value, 1);
 
         const payload = {
-            direction: resolveDirection(),
-            type: resolveType(),
+            side: resolveSide(),
+            front_order_type: resolveFrontOrderType(),
             start_price: safeStartPrice,
             interval: safeInterval,
-            size: safeSize,
+            qty: safeQty,
         };
 
         try {

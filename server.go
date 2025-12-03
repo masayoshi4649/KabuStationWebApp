@@ -108,11 +108,11 @@ type ReqOrderClosePOST struct {
 }
 
 type ReqOrderOpenPOST struct {
-	Direction  string  `json:"direction"`
-	OrderType  string  `json:"type"`
-	StartPrice float64 `json:"start_price"`
-	Interval   float64 `json:"interval"`
-	Size       int     `json:"size"`
+	Side           string  `json:"side"`
+	FrontOrderType int     `json:"front_order_type"`
+	StartPrice     float64 `json:"start_price"`
+	Interval       float64 `json:"interval"`
+	Qty            int     `json:"qty"`
 }
 
 // handleOrderCancelPOST は、注文取消用の JSON ペイロードを受信し、現在の注文情報を取得した上で取消処理を実行します。
@@ -261,7 +261,9 @@ func handleOrderClosePOST(c *gin.Context) {
 // handleOrderOpenPOST は、即時注文フォームの内容を JSON で受け取り、ログへ記録するハンドラーです。
 //
 // 主な特徴:
-//   - direction/type/start_price/interval/size の値を ShouldBindJSON でバインドする
+//   - side/front_order_type/start_price/interval/qty の値を ShouldBindJSON でバインドする
+//   - side は売り/買いを表し、"1" が売、"2" が買
+//   - front_order_type は種別を表し、指値は 20、逆指値は 30
 //   - バインドに失敗した場合は 400 を返し、エラー内容をログ出力する
 //   - 本実装では受信した値の記録のみを行い、実際の発注処理は行わない
 //
@@ -281,12 +283,37 @@ func handleOrderOpenPOST(c *gin.Context) {
 	}
 
 	log.Printf(
-		"handleOrderOpenPOST direction=%s type=%s start_price=%.4f interval=%.4f size=%d\n",
-		req.Direction,
-		req.OrderType,
+		"handleOrderOpenPOST side=%s front_order_type=%d start_price=%.4f interval=%.4f qty=%d\n",
+		req.Side,
+		req.FrontOrderType,
 		req.StartPrice,
 		req.Interval,
-		req.Size,
+		req.Qty,
 	)
+
+	switch req.Side {
+	// 売
+	case "1":
+		switch req.FrontOrderType {
+		case 20: // 指値
+			log.Printf("価格プレビュー")
+
+		case 30: // 逆指値
+			log.Printf("価格プレビュー")
+
+		}
+
+		// 買
+	case "2":
+		switch req.FrontOrderType {
+		case 20: // 指値
+			log.Printf("価格プレビュー")
+
+		case 30: // 逆指値
+			log.Printf("価格プレビュー")
+
+		}
+	}
+
 	c.Status(http.StatusOK)
 }
