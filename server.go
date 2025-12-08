@@ -260,21 +260,117 @@ func handleOrderClosePOST(c *gin.Context) {
 
 	log.Printf("handleOrderClosePOST long=%t short=%t only_profit=%t\n", req.Long, req.Short, req.OnlyProfit)
 
-	code, res, err := kabusapi.GetInfoPositions(kabusapi.ReqGetInfoPositions{})
-	if err != nil {
-		log.Println("GetInfoPositions", err)
-		c.Error(err)
-		c.Abort()
-		return
-	}
-	if code != 200 {
-		log.Println("GetInfoPositions", code)
-		c.Status(code)
-		c.Abort()
-		return
+	if req.Short {
+		// --------------------------------------------------------------------------
+		// 建玉取得
+		code, res, err := kabusapi.GetInfoPositions(kabusapi.ReqGetInfoPositions{
+			Product: "3",
+			Symbol:  codeSymbol,
+			Side:    "1", // 売
+			Addinfo: "true",
+		})
+		if err != nil {
+			log.Println("GetInfoPositions", err)
+			c.Error(err)
+			c.Abort()
+			return
+		}
+		if code != 200 {
+			log.Println("GetInfoPositions", code)
+			c.Status(code)
+			c.Abort()
+			return
+		}
+
+		// --------------------------------------------------------------------------
+		// 対象枚数計算
+		var closeQty int // 返済枚数
+		if req.OnlyProfit {
+			for _, pos := range res {
+				if pos.ProfitLoss > 0 {
+					closeQty++
+				}
+			}
+		} else {
+			closeQty = len(res)
+		}
+		log.Println("枚数", closeQty)
+
+		// --------------------------------------------------------------------------
+		// 返済実行
+		{
+			code, res, err := kabusapi.PostOrderSendorderFuture(kabusapi.ReqPostOrderSendorderFuture{
+				Symbol:             codeSymbol,
+				Exchange:           cfg.Trade.Exchange,
+				TradeType:          2,
+				TimeInForce:        1,
+				Side:               "2",
+				Qty:                closeQty,
+				ClosePositionOrder: 4,
+				FrontOrderType:     20,
+				Price:              current,
+				ExpireDay:          0,
+			})
+
+			log.Println(code, res, err)
+		}
 	}
 
-	_ = res
+	if req.Long {
+		// --------------------------------------------------------------------------
+		// 建玉取得
+		code, res, err := kabusapi.GetInfoPositions(kabusapi.ReqGetInfoPositions{
+			Product: "3",
+			Symbol:  codeSymbol,
+			Side:    "2", // 買
+			Addinfo: "true",
+		})
+		if err != nil {
+			log.Println("GetInfoPositions", err)
+			c.Error(err)
+			c.Abort()
+			return
+		}
+		if code != 200 {
+			log.Println("GetInfoPositions", code)
+			c.Status(code)
+			c.Abort()
+			return
+		}
+
+		// --------------------------------------------------------------------------
+		// 対象枚数計算
+		var closeQty int // 返済枚数
+		if req.OnlyProfit {
+			for _, pos := range res {
+				if pos.ProfitLoss > 0 {
+					closeQty++
+				}
+			}
+		} else {
+			closeQty = len(res)
+		}
+		log.Println("枚数", closeQty)
+
+		// --------------------------------------------------------------------------
+		// 返済実行
+		{
+			code, res, err := kabusapi.PostOrderSendorderFuture(kabusapi.ReqPostOrderSendorderFuture{
+				Symbol:             codeSymbol,
+				Exchange:           cfg.Trade.Exchange,
+				TradeType:          2,
+				TimeInForce:        1,
+				Side:               "1",
+				Qty:                closeQty,
+				ClosePositionOrder: 4,
+				FrontOrderType:     20,
+				Price:              current,
+				ExpireDay:          0,
+			})
+
+			log.Println(code, res, err)
+		}
+	}
 
 	c.Status(http.StatusOK)
 }
