@@ -53,7 +53,7 @@ type ReqPostOrderSendorder struct {
 		TriggerPrice      float64 `json:"TriggerPrice,omitempty"`      // トリガ価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。
 		UnderOver         int     `json:"UnderOver,omitempty"`         // 以上／以下<br> ※未設定の場合はエラーになります。<br> ※1、2以外が指定された場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>以下</td> </tr> <tr> <td>2</td> <td>以上</td> </tr> </tbody> </table>
 		AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"` // ヒット後執行条件<br> ※未設定の場合はエラーになります。<br> ※1、2、3以外が指定された場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>成行</td> </tr> <tr> <td>2</td> <td>指値</td> </tr> <tr> <td>3</td> <td>不成</td> </tr> </tbody> </table>
-		AfterHitPrice     float64 `json:"AfterHitPrice,omitempty"`     // ヒット後注文価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。<br><br> ヒット後執行条件に従い、下記のようにヒット後注文価格を設定してください。 <table> <thead> <tr> <th>ヒット後執行条件</th> <th>設定価格</th> </tr> </thead> <tbody> <tr> <td>成行</td> <td>0</td> </tr> <tr> <td>指値</td> <td>指値の単価</td> </tr> <tr> <td>不成</td> <td>不成の単価</td> </tr> </tbody> </table>
+		AfterHitPrice     float64 `json:"AfterHitPrice"`              // ヒット後注文価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。<br><br> ヒット後執行条件に従い、下記のようにヒット後注文価格を設定してください。 <table> <thead> <tr> <th>ヒット後執行条件</th> <th>設定価格</th> </tr> </thead> <tbody> <tr> <td>成行</td> <td>0</td> </tr> <tr> <td>指値</td> <td>指値の単価</td> </tr> <tr> <td>不成</td> <td>不成の単価</td> </tr> </tbody> </table>
 	} `json:"ReverseLimitOrder,omitempty"`
 }
 
@@ -151,7 +151,7 @@ type ReqPostOrderSendorderFuture struct {
 		TriggerPrice      float64 `json:"TriggerPrice,omitempty"`      // TriggerPrice は逆指値の発動価格。未設定や数値以外はエラー。
 		UnderOver         int     `json:"UnderOver,omitempty"`         // UnderOver は発動条件。1:以下、2:以上。未設定や 1/2 以外はエラー。
 		AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"` // AfterHitOrderType はヒット後の執行条件。1:成行、2:指値。日通しでは 2 のみ有効、日中/夜間では 1 または 2 を指定。逆指値成行は TimeInForce=FAK、逆指値指値は TimeInForce=FAS を指定する。
-		AfterHitPrice     float64 `json:"AfterHitPrice,omitempty"`     // AfterHitPrice はヒット後の価格。成行なら 0、指値なら単価を指定。未設定や数値以外はエラー。
+		AfterHitPrice     float64 `json:"AfterHitPrice"`               // AfterHitPrice はヒット後の価格。成行なら 0、指値なら単価を指定。未設定や数値以外はエラー。
 	} `json:"ReverseLimitOrder,omitempty"`
 }
 
@@ -243,7 +243,7 @@ type ReqPostOrderSendorderOption struct {
 		TriggerPrice      float64 `json:"TriggerPrice,omitempty"`      // トリガ価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。
 		UnderOver         int     `json:"UnderOver,omitempty"`         // 以上／以下<br> ※未設定の場合はエラーになります。<br> ※1、2以外が指定された場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>以下</td> </tr> <tr> <td>2</td> <td>以上</td> </tr> </tbody> </table>
 		AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"` // ヒット後執行条件<br> ※未設定の場合はエラーになります。<br> ※日通の注文で2以外が指定された場合はエラーになります。<br> ※日中、夜間の注文で1、2以外が指定された場合はエラーになります。<br> ※逆指値（成行）で有効期間条件(TimeInForce)にFAK以外を指定された場合はエラーになります。<br> ※逆指値（指値）で有効期間条件(TimeInForce)にFAS以外を指定された場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>成行</td> </tr> <tr> <td>2</td> <td>指値</td> </tr> </tbody> </table>
-		AfterHitPrice     float64 `json:"AfterHitPrice,omitempty"`     // ヒット後注文価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。<br><br> ヒット後執行条件に従い、下記のようにヒット後注文価格を設定してください。 <table> <thead> <tr> <th>ヒット後執行条件</th> <th>設定価格</th> </tr> </thead> <tbody> <tr> <td>成行</td> <td>0</td> </tr> <tr> <td>指値</td> <td>指値の単価</td> </tr> </tbody> </table>
+		AfterHitPrice     float64 `json:"AfterHitPrice"`               // ヒット後注文価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。<br><br> ヒット後執行条件に従い、下記のようにヒット後注文価格を設定してください。 <table> <thead> <tr> <th>ヒット後執行条件</th> <th>設定価格</th> </tr> </thead> <tbody> <tr> <td>成行</td> <td>0</td> </tr> <tr> <td>指値</td> <td>指値の単価</td> </tr> </tbody> </table>
 	} `json:"ReverseLimitOrder,omitempty"`
 }
 
