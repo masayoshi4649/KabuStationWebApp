@@ -138,88 +138,98 @@ func handleOrderCancelPOST(c *gin.Context) {
 
 	// ----------------------------------------
 	if req.Long {
-		// 注文中データ取得
-		code, res, err := kabusapi.GetInfoOrders(kabusapi.ReqGetInfoOrders{
-			Symbol:     codeSymbol,
-			Side:       "2",
-			Cashmargin: "2",
-			State:      "3",
-		})
-		if err != nil {
-			log.Println("handleOrderCancelPOST", err)
-			c.Error(err)
-			c.Abort()
-			return
-		}
-		if code != 200 {
-			log.Println("handleOrderCancelPOST", code)
-			c.Status(code)
-			c.Abort()
-			return
-		}
+		for _, st := range []string{"1", "3"} {
+			func(state string) {
+				// 注文中データ取得
+				code, res, err := kabusapi.GetInfoOrders(kabusapi.ReqGetInfoOrders{
+					Symbol:     codeSymbol,
+					Side:       "2",
+					Cashmargin: "2",
+					State:      state,
+				})
+				if err != nil {
+					log.Println("handleOrderCancelPOST", err)
+					c.Error(err)
+					c.Abort()
+					return
+				}
+				if code != 200 {
+					log.Println("handleOrderCancelPOST", code)
+					c.Status(code)
+					c.Abort()
+					return
+				}
 
-		// 注文取消実行
-		for _, v := range res {
-			code, res, err := kabusapi.PutOrderCancelorder(kabusapi.ReqPutOrderCancelorder{OrderId: v.ID})
-			if err != nil {
-				log.Println("PutOrderCancelorder", err)
-				c.Error(err)
-				c.Abort()
-				return
-			}
-			if code != 200 {
-				log.Println("PutOrderCancelorder", code)
-				c.Status(code)
-				c.Abort()
-				return
-			}
-			time.Sleep(500 * time.Millisecond)
+				// 注文取消実行
+				for _, v := range res {
+					code, res, err := kabusapi.PutOrderCancelorder(kabusapi.ReqPutOrderCancelorder{OrderId: v.ID})
+					if err != nil {
+						log.Println("PutOrderCancelorder", err)
+						c.Error(err)
+						c.Abort()
+						return
+					}
+					if code != 200 {
+						log.Println("PutOrderCancelorder", code)
+						c.Status(code)
+						c.Abort()
+						return
+					}
+					time.Sleep(500 * time.Millisecond)
 
-			fmt.Println("注文取消", res.Result, res.OrderId)
+					fmt.Println("注文取消", res.Result, res.OrderId)
+				}
+			}(st)
 		}
 	}
 
 	// ----------------------------------------
 	if req.Short {
-		// 注文中データ取得
-		code, res, err := kabusapi.GetInfoOrders(kabusapi.ReqGetInfoOrders{
-			Symbol:     codeSymbol,
-			Side:       "1",
-			Cashmargin: "2",
-			State:      "3",
-		})
-		if err != nil {
-			log.Println("handleOrderCancelPOST", err)
-			c.Error(err)
-			c.Abort()
-			return
-		}
-		if code != 200 {
-			log.Println("handleOrderCancelPOST", code)
-			c.Status(code)
-			c.Abort()
-			return
+
+		for _, st := range []string{"1", "3"} {
+			func(state string) {
+				// 注文中データ取得
+				code, res, err := kabusapi.GetInfoOrders(kabusapi.ReqGetInfoOrders{
+					Symbol:     codeSymbol,
+					Side:       "1",
+					Cashmargin: "2",
+					State:      state,
+				})
+				if err != nil {
+					log.Println("handleOrderCancelPOST", err)
+					c.Error(err)
+					c.Abort()
+					return
+				}
+				if code != 200 {
+					log.Println("handleOrderCancelPOST", code)
+					c.Status(code)
+					c.Abort()
+					return
+				}
+
+				// 注文取消実行
+				for _, v := range res {
+					code, res, err := kabusapi.PutOrderCancelorder(kabusapi.ReqPutOrderCancelorder{OrderId: v.ID})
+					if err != nil {
+						log.Println("PutOrderCancelorder", err)
+						c.Error(err)
+						c.Abort()
+						return
+					}
+					if code != 200 {
+						log.Println("PutOrderCancelorder", code)
+						c.Status(code)
+						c.Abort()
+						return
+					}
+					time.Sleep(500 * time.Millisecond)
+
+					fmt.Println("注文取消", res.Result, res.OrderId)
+				}
+			}(st)
 		}
 
-		// 注文取消実行
-		for _, v := range res {
-			code, res, err := kabusapi.PutOrderCancelorder(kabusapi.ReqPutOrderCancelorder{OrderId: v.ID})
-			if err != nil {
-				log.Println("PutOrderCancelorder", err)
-				c.Error(err)
-				c.Abort()
-				return
-			}
-			if code != 200 {
-				log.Println("PutOrderCancelorder", code)
-				c.Status(code)
-				c.Abort()
-				return
-			}
-			time.Sleep(500 * time.Millisecond)
-
-			fmt.Println("注文取消", res.Result, res.OrderId)
-		}
 	}
 	// ----------------------------------------
 
@@ -416,7 +426,7 @@ func handleOrderOpenPOST(c *gin.Context) {
 						Exchange:       cfg.Trade.Exchange,
 						TradeType:      1,
 						TimeInForce:    1,
-						Side:           "1",
+						Side:           "2",
 						Qty:            1,
 						FrontOrderType: 30,
 						ReverseLimitOrder: &struct {
