@@ -259,6 +259,23 @@ func handleOrderClosePOST(c *gin.Context) {
 	}
 
 	log.Printf("handleOrderClosePOST long=%t short=%t only_profit=%t\n", req.Long, req.Short, req.OnlyProfit)
+
+	code, res, err := kabusapi.GetInfoPositions(kabusapi.ReqGetInfoPositions{})
+	if err != nil {
+		log.Println("GetInfoPositions", err)
+		c.Error(err)
+		c.Abort()
+		return
+	}
+	if code != 200 {
+		log.Println("GetInfoPositions", code)
+		c.Status(code)
+		c.Abort()
+		return
+	}
+
+	_ = res
+
 	c.Status(http.StatusOK)
 }
 

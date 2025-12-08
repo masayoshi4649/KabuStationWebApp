@@ -544,7 +544,49 @@ type ReqGetInfoPositions struct {
 // ResGetInfoPositions は **GET /positions** のレスポンス。
 //
 // 残高照会
-type ResGetInfoPositions struct {
+type ResGetInfoPositions []struct {
+	// 約定番号 ※現物取引では、nullが返ります。
+	ExecutionID string `json:"ExecutionID,omitempty"`
+	// 口座種別 2:一般 4:特定 12:法人
+	AccountType int `json:"AccountType,omitempty"`
+	// 銘柄コード
+	Symbol string `json:"Symbol,omitempty"`
+	// 銘柄名
+	SymbolName string `json:"SymbolName,omitempty"`
+	// 市場コード 1:東証 3:名証 5:福証 6:札証 9:SOR 27:東証+ 2:日通し 23:日中 24:夜間
+	Exchange int `json:"Exchange,omitempty"`
+	// 市場名
+	ExchangeName string `json:"ExchangeName,omitempty"`
+	// 銘柄種別 ※先物・オプション銘柄の場合のみ 0:指数 1:現物 101:日経225先物 103:日経225OP 107:TOPIX先物 121:JPX400先物 144:NYダウ 145:日経平均VI 154:グロース250先物 155:TOPIX_REIT 171:TOPIX CORE30 901:日経平均225ミニ先物 907:TOPIXミニ先物
+	SecurityType int `json:"SecurityType,omitempty"`
+	// 約定日（建玉日） ※信用・先物・オプションの場合のみ ※現物取引では、nullが返ります。
+	ExecutionDay int `json:"ExecutionDay,omitempty"`
+	// 値段
+	Price float64 `json:"Price,omitempty"`
+	// 残数量（保有数量）
+	LeavesQty float64 `json:"LeavesQty,omitempty"`
+	// 拘束数量（返済のために拘束されている数量）
+	HoldQty float64 `json:"HoldQty,omitempty"`
+	// 売買区分 1:売 2:買
+	Side string `json:"Side,omitempty"`
+	// 諸経費 ※信用・先物・オプションの場合のみ
+	Expenses float64 `json:"Expenses,omitempty"`
+	// 手数料 ※信用・先物・オプションの場合のみ
+	Commission float64 `json:"Commission,omitempty"`
+	// 手数料消費税 ※信用・先物・オプションの場合のみ
+	CommissionTax float64 `json:"CommissionTax,omitempty"`
+	// 返済期日 ※信用・先物・オプションの場合のみ
+	ExpireDay int `json:"ExpireDay,omitempty"`
+	// 信用取引区分 ※信用の場合のみ 1:制度信用 2:一般信用（長期） 3:一般信用（デイトレ）
+	MarginTradeType int `json:"MarginTradeType,omitempty"`
+	// 現在値 追加情報出力フラグ：falseの場合、null
+	CurrentPrice float64 `json:"CurrentPrice,omitempty"`
+	// 評価金額 追加情報出力フラグ：falseの場合、null
+	Valuation float64 `json:"Valuation,omitempty"`
+	// 評価損益額 追加情報出力フラグ：falseの場合、null
+	ProfitLoss float64 `json:"ProfitLoss,omitempty"`
+	// 評価損益率 追加情報出力フラグ：falseの場合、null
+	ProfitLossRate float64 `json:"ProfitLossRate,omitempty"`
 }
 
 // GetInfoPositions は **GET /positions** を呼び出して建玉残高を取得します。
