@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -161,10 +160,6 @@ func handleOrderCancelPOST(c *gin.Context) {
 
 		// 注文取消実行
 		for _, v := range res {
-			b, _ := json.MarshalIndent(v, "", "  ")
-			fmt.Println("----------------------------------------")
-			fmt.Println(string(b))
-
 			code, res, err := kabusapi.PutOrderCancelorder(kabusapi.ReqPutOrderCancelorder{OrderId: v.ID})
 			if err != nil {
 				log.Println("PutOrderCancelorder", err)
@@ -178,6 +173,7 @@ func handleOrderCancelPOST(c *gin.Context) {
 				c.Abort()
 				return
 			}
+			time.Sleep(500 * time.Millisecond)
 
 			fmt.Println("注文取消", res.Result, res.OrderId)
 		}
@@ -207,10 +203,6 @@ func handleOrderCancelPOST(c *gin.Context) {
 
 		// 注文取消実行
 		for _, v := range res {
-			b, _ := json.MarshalIndent(v, "", "  ")
-			fmt.Println("----------------------------------------")
-			fmt.Println(string(b))
-
 			code, res, err := kabusapi.PutOrderCancelorder(kabusapi.ReqPutOrderCancelorder{OrderId: v.ID})
 			if err != nil {
 				log.Println("PutOrderCancelorder", err)
@@ -224,6 +216,7 @@ func handleOrderCancelPOST(c *gin.Context) {
 				c.Abort()
 				return
 			}
+			time.Sleep(500 * time.Millisecond)
 
 			fmt.Println("注文取消", res.Result, res.OrderId)
 		}
@@ -347,6 +340,36 @@ func handleOrderOpenPOST(c *gin.Context) {
 			}
 			log.Printf("価格プレビュー(売り・逆指値): %v", prices)
 
+			go func(prices []float64) {
+				for _, p := range prices {
+					code, res, err := kabusapi.PostOrderSendorderFuture(kabusapi.ReqPostOrderSendorderFuture{
+						Symbol:         codeSymbol,
+						Exchange:       cfg.Trade.Exchange,
+						TradeType:      1,
+						TimeInForce:    1,
+						Side:           "1",
+						Qty:            1,
+						FrontOrderType: 30,
+						ReverseLimitOrder: &struct {
+							TriggerPrice      float64 `json:"TriggerPrice,omitempty"`
+							UnderOver         int     `json:"UnderOver,omitempty"`
+							AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"`
+							AfterHitPrice     float64 `json:"AfterHitPrice,omitempty"`
+						}{
+							TriggerPrice:      p, // トリガ価格
+							UnderOver:         1, // 1:以下 2:以上
+							AfterHitOrderType: 1, // ヒット後は成行
+							AfterHitPrice:     0, // ヒット後に出す指値
+						},
+						Price:     0,
+						ExpireDay: 0,
+					})
+
+					log.Println(code, res, err)
+					time.Sleep(500 * time.Millisecond)
+				}
+			}(prices)
+
 		}
 
 		// 買
@@ -358,6 +381,25 @@ func handleOrderOpenPOST(c *gin.Context) {
 				prices[i] = req.StartPrice - step*float64(i)
 			}
 			log.Printf("価格プレビュー(買い・指値): %v", prices)
+			go func(prices []float64) {
+				for _, p := range prices {
+					code, res, err := kabusapi.PostOrderSendorderFuture(kabusapi.ReqPostOrderSendorderFuture{
+						Symbol:         codeSymbol,
+						Exchange:       cfg.Trade.Exchange,
+						TradeType:      1,
+						TimeInForce:    1,
+						Side:           "2",
+						Qty:            1,
+						FrontOrderType: 20,
+						Price:          p,
+						ExpireDay:      0,
+					})
+
+					log.Println(code, res, err)
+
+					time.Sleep(500 * time.Millisecond)
+				}
+			}(prices)
 
 		case 30: // 逆指値
 			prices := make([]float64, qty)
@@ -365,6 +407,36 @@ func handleOrderOpenPOST(c *gin.Context) {
 				prices[i] = req.StartPrice + step*float64(i)
 			}
 			log.Printf("価格プレビュー(買い・逆指値): %v", prices)
+
+			go func(prices []float64) {
+				for _, p := range prices {
+					code, res, err := kabusapi.PostOrderSendorderFuture(kabusapi.ReqPostOrderSendorderFuture{
+						Symbol:         codeSymbol,
+						Exchange:       cfg.Trade.Exchange,
+						TradeType:      1,
+						TimeInForce:    1,
+						Side:           "1",
+						Qty:            1,
+						FrontOrderType: 30,
+						ReverseLimitOrder: &struct {
+							TriggerPrice      float64 `json:"TriggerPrice,omitempty"`
+							UnderOver         int     `json:"UnderOver,omitempty"`
+							AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"`
+							AfterHitPrice     float64 `json:"AfterHitPrice,omitempty"`
+						}{
+							TriggerPrice:      p, // トリガ価格
+							UnderOver:         2, // 1:以下 2:以上
+							AfterHitOrderType: 1, // ヒット後は成行
+							AfterHitPrice:     0, // ヒット後に出す指値
+						},
+						Price:     0,
+						ExpireDay: 0,
+					})
+
+					log.Println(code, res, err)
+					time.Sleep(500 * time.Millisecond)
+				}
+			}(prices)
 
 		}
 	}

@@ -48,13 +48,13 @@ type ReqPostOrderSendorder struct {
 	// 注文有効期限<br> yyyyMMdd形式。<br> 「0」を指定すると、kabuステーション上の発注画面の「本日」に対応する日付として扱います。<br> 「本日」は直近の注文可能日となり、以下のように設定されます。<br> 引けまでの間 : 当日<br> 引け後 : 翌取引所営業日<br> 休前日 : 休日明けの取引所営業日<br> ※ 日替わりはkabuステーションが日付変更通知を受信したタイミングです。
 	ExpireDay int `json:"ExpireDay" validate:"required"`
 	// 逆指値条件<br> ※FrontOrderTypeで逆指値を指定した場合のみ必須。
-	ReverseLimitOrder struct {
+	ReverseLimitOrder *struct {
 		TriggerSec        int     `json:"TriggerSec,omitempty"`        // トリガ銘柄<br> ※未設定の場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>発注銘柄</td> </tr> <tr> <td>2</td> <td>NK225指数</td> </tr> <tr> <td>3</td> <td>TOPIX指数</td> </tr> </tbody> </table>
 		TriggerPrice      float64 `json:"TriggerPrice,omitempty"`      // トリガ価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。
 		UnderOver         int     `json:"UnderOver,omitempty"`         // 以上／以下<br> ※未設定の場合はエラーになります。<br> ※1、2以外が指定された場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>以下</td> </tr> <tr> <td>2</td> <td>以上</td> </tr> </tbody> </table>
 		AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"` // ヒット後執行条件<br> ※未設定の場合はエラーになります。<br> ※1、2、3以外が指定された場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>成行</td> </tr> <tr> <td>2</td> <td>指値</td> </tr> <tr> <td>3</td> <td>不成</td> </tr> </tbody> </table>
 		AfterHitPrice     float64 `json:"AfterHitPrice,omitempty"`     // ヒット後注文価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。<br><br> ヒット後執行条件に従い、下記のようにヒット後注文価格を設定してください。 <table> <thead> <tr> <th>ヒット後執行条件</th> <th>設定価格</th> </tr> </thead> <tbody> <tr> <td>成行</td> <td>0</td> </tr> <tr> <td>指値</td> <td>指値の単価</td> </tr> <tr> <td>不成</td> <td>不成の単価</td> </tr> </tbody> </table>
-	} `json:"ReverseLimitOrder"`
+	} `json:"ReverseLimitOrder,omitempty"`
 }
 
 // ResPostOrderSendorder は **POST /sendorder** のレスポンス。
@@ -147,7 +147,7 @@ type ReqPostOrderSendorderFuture struct {
 	// 日替わりは kabu ステーション側の日付更新タイミングに従う。
 	ExpireDay int `json:"ExpireDay" validate:"required"`
 	// ReverseLimitOrder は FrontOrderType=逆指値のときに設定する条件。
-	ReverseLimitOrder struct {
+	ReverseLimitOrder *struct {
 		TriggerPrice      float64 `json:"TriggerPrice,omitempty"`      // TriggerPrice は逆指値の発動価格。未設定や数値以外はエラー。
 		UnderOver         int     `json:"UnderOver,omitempty"`         // UnderOver は発動条件。1:以下、2:以上。未設定や 1/2 以外はエラー。
 		AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"` // AfterHitOrderType はヒット後の執行条件。1:成行、2:指値。日通しでは 2 のみ有効、日中/夜間では 1 または 2 を指定。逆指値成行は TimeInForce=FAK、逆指値指値は TimeInForce=FAS を指定する。
@@ -239,12 +239,12 @@ type ReqPostOrderSendorderOption struct {
 	// 注文有効期限<br> yyyyMMdd形式。<br> 「0」を指定すると、kabuステーション上の発注画面の「本日」に対応する日付として扱います。<br> 「本日」は直近の注文可能日となり、以下のように設定されます。<br> その市場の引けまでの間 : 当日<br> その市場の引け後 : 翌取引所営業日<br> その市場の休前日 : 休日明けの取引所営業日<br> ※ 日替わりはkabuステーションが日付変更通知を受信したタイミングです。<br> ※ 日通しの場合、夜間取引の引け後に日付が更新されます。
 	ExpireDay int `json:"ExpireDay" validate:"required"`
 	// 逆指値条件<br> ※FrontOrderTypeで逆指値を指定した場合のみ必須。
-	ReverseLimitOrder struct {
+	ReverseLimitOrder *struct {
 		TriggerPrice      float64 `json:"TriggerPrice,omitempty"`      // トリガ価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。
 		UnderOver         int     `json:"UnderOver,omitempty"`         // 以上／以下<br> ※未設定の場合はエラーになります。<br> ※1、2以外が指定された場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>以下</td> </tr> <tr> <td>2</td> <td>以上</td> </tr> </tbody> </table>
 		AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"` // ヒット後執行条件<br> ※未設定の場合はエラーになります。<br> ※日通の注文で2以外が指定された場合はエラーになります。<br> ※日中、夜間の注文で1、2以外が指定された場合はエラーになります。<br> ※逆指値（成行）で有効期間条件(TimeInForce)にFAK以外を指定された場合はエラーになります。<br> ※逆指値（指値）で有効期間条件(TimeInForce)にFAS以外を指定された場合はエラーになります。 <table> <thead> <tr> <th>定義値</th> <th>説明</th> </tr> </thead> <tbody> <tr> <td>1</td> <td>成行</td> </tr> <tr> <td>2</td> <td>指値</td> </tr> </tbody> </table>
 		AfterHitPrice     float64 `json:"AfterHitPrice,omitempty"`     // ヒット後注文価格<br> ※未設定の場合はエラーになります。<br> ※数字以外が設定された場合はエラーになります。<br><br> ヒット後執行条件に従い、下記のようにヒット後注文価格を設定してください。 <table> <thead> <tr> <th>ヒット後執行条件</th> <th>設定価格</th> </tr> </thead> <tbody> <tr> <td>成行</td> <td>0</td> </tr> <tr> <td>指値</td> <td>指値の単価</td> </tr> </tbody> </table>
-	} `json:"ReverseLimitOrder"`
+	} `json:"ReverseLimitOrder,omitempty"`
 }
 
 // ResPostOrderSendorderOption は **POST /sendorder/option** のレスポンス。
