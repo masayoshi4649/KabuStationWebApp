@@ -90,8 +90,9 @@ func main() {
 				Exchange int    `json:"Exchange,omitempty"`
 			}{
 				{
-					Symbol:   codeSymbol,
-					Exchange: cfg.Trade.Exchange,
+					Symbol: codeSymbol,
+					// Exchange: cfg.Trade.Exchange,
+					Exchange: 2, // ここだけハードコーディング
 				},
 			},
 		})

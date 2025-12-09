@@ -21,9 +21,9 @@ DERIV_MONTH = "202512" # yyyyMM
 ONE_TICK = 0.25 # TOPIXmini
 # ONE_TICK = 0.5 # TOPIX
 
-EXCHANGE = 2 # 日通し
+# EXCHANGE = 2 # 日通し
 # EXCHANGE = 23	# 日中
 # EXCHANGE = 24	# 夜間
-# EXCHANGE = 32 # SOR日通し
+EXCHANGE = 32 # SOR日通し
 # EXCHANGE = 33	# SOR日中
 # EXCHANGE = 34	# SOR夜間
