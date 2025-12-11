@@ -43,6 +43,11 @@ func main() {
 	var confPath string
 	flag.StringVar(&confPath, "c", "app.toml", "設定ファイルへのパスを指定するフラグ")
 	flag.StringVar(&confPath, "config", "app.toml", "設定ファイルへのパスを指定するエイリアス")
+
+	var apikey string
+	flag.StringVar(&apikey, "k", "", "APIKEYを指定するフラグ")
+	flag.StringVar(&apikey, "key", "", "APIKEYを指定するエイリアス")
+
 	flag.Parse()
 
 	conf, err := loadConfig(confPath)
@@ -63,7 +68,7 @@ func main() {
 
 	// ----------------------------------------
 	{
-		kabusapi.SetAPIKey(os.Getenv(cfg.System.EnvName))
+		kabusapi.SetAPIKey(apikey)
 
 		// 既存登録を全解除
 		code, _, err := kabusapi.PutRegisterUnregisterAll(kabusapi.ReqPutRegisterUnregisterAll{})

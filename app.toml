@@ -1,7 +1,3 @@
-[SYSTEM]
-# 保存する環境変数名
-ENV_NAME = "APIKEY_PRD"
-
 [TRADE]
 # FUTURE_CODE = "NK225" # 日経平均先物
 # FUTURE_CODE = "NK225mini" # 日経225mini先物
