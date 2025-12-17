@@ -2,6 +2,32 @@ const ORDERBOOK_ENDPOINT = "/book";
 
 // ----------------------------------------
 /**
+ * 認証エラー発生時にログイン画面へ遷移させます。
+ *
+ * セッション期限切れなどで 401 が返った場合に、操作を継続できるよう /login へ誘導します。
+ *
+ * @function setupAuthErrorRedirect
+ * @returns {void} 返り値はありません。
+ */
+function setupAuthErrorRedirect() {
+    if (typeof axios === "undefined") {
+        return;
+    }
+
+    axios.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            const status = error?.response?.status;
+            if (status === 401) {
+                window.location.href = "/login";
+            }
+            return Promise.reject(error);
+        }
+    );
+}
+
+// ----------------------------------------
+/**
  * チェック状態に応じた強調色を返します。
  *
  * ロング / ショートの選択状況から、表示に使う 16 進カラーコードを返します。
@@ -724,6 +750,7 @@ function setupOpenButton() {
 }
 
 setupRowClick();
+setupAuthErrorRedirect();
 startOrderBookPolling();
 setupCancelState();
 setupCloseState();

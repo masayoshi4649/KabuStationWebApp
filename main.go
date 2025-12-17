@@ -235,5 +235,8 @@ func loadConfig(path string) (Config, error) {
 	if err := toml.Unmarshal(b, &cfg); err != nil {
 		return cfg, err
 	}
+	if err := validateConfig(cfg); err != nil {
+		return cfg, err
+	}
 	return cfg, nil
 }

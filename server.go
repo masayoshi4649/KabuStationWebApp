@@ -47,13 +47,18 @@ func registerHTTPRoutes(rt *gin.Engine) {
 	rt.LoadHTMLGlob("view/*.html")
 	rt.Static("/static", "./view")
 
-	rt.GET("/", handleIndexGET)
-	rt.GET("/book", handleBookGET)
+	// ----------------------------------------
+	registerAuthRoutes(rt)
 
-	rt.POST("/order/cancel", handleOrderCancelPOST)
-	rt.POST("/order/close", handleOrderClosePOST)
-	rt.POST("/order/open", handleOrderOpenPOST)
+	// ----------------------------------------
+	auth := rt.Group("/")
+	auth.Use(requireLoginMiddleware())
+	auth.GET("/", handleIndexGET)
+	auth.GET("/book", handleBookGET)
 
+	auth.POST("/order/cancel", handleOrderCancelPOST)
+	auth.POST("/order/close", handleOrderClosePOST)
+	auth.POST("/order/open", handleOrderOpenPOST)
 }
 
 // handleIndexGET は、先物コードと限月をタイトルとしてテンプレートに渡し、インデックスページを描画します。
@@ -71,9 +76,10 @@ func handleIndexGET(c *gin.Context) {
 	title := fmt.Sprintf("%s（%s）", cfg.Trade.FutureCode, cfg.Trade.DerivMonth)
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title":   title,
-		"onetick": cfg.Trade.OneTick,
-		"current": current,
+		"title":        title,
+		"onetick":      cfg.Trade.OneTick,
+		"current":      current,
+		"auth_enabled": isAuthEnabled(),
 	})
 }
 

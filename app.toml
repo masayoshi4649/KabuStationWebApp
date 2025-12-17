@@ -1,3 +1,7 @@
+[SYSTEM]
+SYSID = "admin"
+SYSPW = "pass"
+
 [TRADE]
 # FUTURE_CODE = "NK225" # 日経平均先物
 # FUTURE_CODE = "NK225mini" # 日経225mini先物

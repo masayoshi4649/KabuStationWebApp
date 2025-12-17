@@ -2,6 +2,11 @@ package main
 
 // Config は、システム設定とトレード設定をまとめて保持するルート構造体です。
 type Config struct {
+	System struct {
+		SysID string `toml:"SYSID"`
+		SysPW string `toml:"SYSPW"`
+	} `toml:"SYSTEM"`
+
 	Trade struct {
 		FutureCode string  `toml:"FUTURE_CODE"`
 		DerivMonth string  `toml:"DERIV_MONTH"`

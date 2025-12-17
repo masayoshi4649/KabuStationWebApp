@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ .title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100 antialiased">
+    <!--
+    [コンポーネント概要]
+    #login-page はログイン画面のルート要素です。
+    SYSID/SYSPW による簡易認証を行い、成功時はセッション Cookie を発行してトップへ遷移します。
+
+    #login-form はログイン情報を送信するフォームです。
+    username/password を POST /login へ送信し、失敗時はサーバー側で /login?error=1 へリダイレクトします。
+
+    .login-error は認証失敗時のエラーメッセージ表示領域です。
+    -->
+    <main id="login-page" class="mx-auto flex min-h-screen max-w-md items-center px-4 py-12">
+        <section
+            class="w-full rounded-3xl border border-slate-800/80 bg-slate-900/70 p-8 shadow-2xl shadow-slate-950/60 backdrop-blur-xl">
+            <h1 class="text-2xl font-bold text-white">ログイン</h1>
+            <p class="mt-2 text-sm text-slate-400">設定ファイルの SYSID / SYSPW を入力してください。</p>
+
+            {{ if .error }}
+            <div class="login-error mt-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                ID またはパスワードが違います。
+            </div>
+            {{ end }}
+
+            <form id="login-form" class="mt-6 flex flex-col gap-4" method="post" action="/login">
+                <label class="flex flex-col gap-2" for="login-username">
+                    <span class="text-sm font-semibold text-slate-200">ID</span>
+                    <input id="login-username" name="username" type="text" autocomplete="username" required
+                        class="rounded-2xl border border-slate-700 bg-slate-950/40 px-4 py-3 text-sm text-white outline-none ring-0 focus:border-teal-400/70 focus:ring-2 focus:ring-teal-300/30" />
+                </label>
+                <label class="flex flex-col gap-2" for="login-password">
+                    <span class="text-sm font-semibold text-slate-200">パスワード</span>
+                    <input id="login-password" name="password" type="password" autocomplete="current-password" required
+                        class="rounded-2xl border border-slate-700 bg-slate-950/40 px-4 py-3 text-sm text-white outline-none ring-0 focus:border-teal-400/70 focus:ring-2 focus:ring-teal-300/30" />
+                </label>
+                <button type="submit"
+                    class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/60 transition hover:shadow-xl hover:shadow-emerald-800/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-emerald-300">
+                    ログイン
+                </button>
+            </form>
+        </section>
+    </main>
+</body>
+
+</html>
