@@ -12,7 +12,7 @@ FUTURE_CODE = "TOPIXmini" # ミニTOPIX先物
 # FUTURE_CODE = "NK225micro" # [SOR非対応]日経225マイクロ先物
 
 # DERIV_MONTH = "0" # 直近限月
-DERIV_MONTH = "202512" # yyyyMM
+DERIV_MONTH = "202603" # yyyyMM
 
 ONE_TICK = 0.25 # TOPIXmini
 # ONE_TICK = 0.5 # TOPIX
