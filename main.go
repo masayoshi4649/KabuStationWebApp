@@ -20,6 +20,10 @@ var (
 var cfg Config
 var codeSymbol string
 
+var (
+	slippageValue float64 // スリッページ値(疑似成行用)
+)
+
 const httpListenAddr = ":8080"
 
 // main は、設定の読み込みと HTTP サーバー、板情報購読の起動を行うアプリケーションのエントリーポイントです。
@@ -58,6 +62,8 @@ func main() {
 		_, _ = bufio.NewReader(os.Stdin).ReadString('\n') // エラー内容を確認するために一時停止
 		os.Exit(1)
 	}
+
+	slippageValue = cfg.Trade.OneTick * float64(cfg.Trade.SlippageTicks)
 
 	// ----------------------------------------
 	go func() {

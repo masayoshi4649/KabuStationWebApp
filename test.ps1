@@ -1,1 +1,0 @@
-﻿go run . -c .\app.toml

@@ -8,10 +8,11 @@ type Config struct {
 	} `toml:"SYSTEM"`
 
 	Trade struct {
-		FutureCode string  `toml:"FUTURE_CODE"`
-		DerivMonth string  `toml:"DERIV_MONTH"`
-		OneTick    float64 `toml:"ONE_TICK"`
-		Exchange   int     `toml:"EXCHANGE"`
+		FutureCode    string  `toml:"FUTURE_CODE"`
+		DerivMonth    string  `toml:"DERIV_MONTH"`
+		OneTick       float64 `toml:"ONE_TICK"`
+		SlippageTicks int     `toml:"SLIPPAGE_TICKS"`
+		Exchange      int     `toml:"EXCHANGE"`
 	} `toml:"TRADE"`
 }
 

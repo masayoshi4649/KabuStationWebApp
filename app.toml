@@ -21,6 +21,8 @@ DERIV_MONTH = "202603" # yyyyMM
 ONE_TICK = 0.25 # TOPIXmini
 # ONE_TICK = 0.5 # TOPIX
 
+SLIPPAGE_TICKS = 10 # スリッページ許容ティック数
+
 # EXCHANGE = 2 # 日通し
 # EXCHANGE = 23	# 日中
 # EXCHANGE = 24	# 夜間

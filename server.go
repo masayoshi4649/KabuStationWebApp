@@ -485,10 +485,10 @@ func handleOrderOpenPOST(c *gin.Context) {
 							AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"`
 							AfterHitPrice     float64 `json:"AfterHitPrice"`
 						}{
-							TriggerPrice:      p, // トリガ価格
-							UnderOver:         1, // 1:以下　2:以上
-							AfterHitOrderType: 2, // ヒット後は指値で出す（FASと整合）
-							AfterHitPrice:     p, // ヒット後に出す指値
+							TriggerPrice:      p,                 // トリガ価格
+							UnderOver:         1,                 // 1:以下　2:以上
+							AfterHitOrderType: 2,                 // ヒット後は指値で出す（FASと整合）
+							AfterHitPrice:     p - slippageValue, // ヒット後に出す指値
 						},
 						Price:     0,
 						ExpireDay: 0,
@@ -554,10 +554,10 @@ func handleOrderOpenPOST(c *gin.Context) {
 							AfterHitOrderType int     `json:"AfterHitOrderType,omitempty"`
 							AfterHitPrice     float64 `json:"AfterHitPrice"`
 						}{
-							TriggerPrice:      p, // トリガ価格
-							UnderOver:         2, // 1:以下　2:以上
-							AfterHitOrderType: 2, // ヒット後は指値で出す（FASと整合）
-							AfterHitPrice:     p, // ヒット後に出す指値
+							TriggerPrice:      p,                 // トリガ価格
+							UnderOver:         2,                 // 1:以下　2:以上
+							AfterHitOrderType: 2,                 // ヒット後は指値で出す（FASと整合）
+							AfterHitPrice:     p + slippageValue, // ヒット後に出す指値
 						},
 						Price:     0,
 						ExpireDay: 0,
