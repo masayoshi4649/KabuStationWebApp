@@ -290,7 +290,7 @@ func handleOrderClosePOST(c *gin.Context) {
 
 		// --------------------------------------------------------------------------
 		// 対象枚数計算
-		var closeQty int // 返済枚数
+		var closeQty int = 0 // 返済枚数
 		if req.OnlyProfit {
 			for _, pos := range res {
 				if pos.ProfitLoss > 0 {
@@ -346,7 +346,7 @@ func handleOrderClosePOST(c *gin.Context) {
 
 		// --------------------------------------------------------------------------
 		// 対象枚数計算
-		var closeQty int // 返済枚数
+		var closeQty int = 0 // 返済枚数
 		if req.OnlyProfit {
 			for _, pos := range res {
 				if pos.ProfitLoss > 0 {
